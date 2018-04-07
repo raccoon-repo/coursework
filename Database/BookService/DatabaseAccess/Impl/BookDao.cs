@@ -1,4 +1,5 @@
-﻿using Database.BookService.Queries;
+﻿using Database.BookService.Proxies;
+using Database.BookService.Queries;
 using Database.BookService.Utils;
 using System;
 using System.Collections.Concurrent;
@@ -13,10 +14,8 @@ namespace Database.BookService.DatabaseAccess
 	public class BookDao : IBookDao
 	{
 		private static readonly BookDao instance = new BookDao();
-		private static HashSet<int> values = new HashSet<int>();
-
-		private static ConcurrentDictionary<uint, Book> cache = 
-			new ConcurrentDictionary<uint, Book>();
+		private static ConcurrentDictionary<uint, BookProxy> cache = 
+			new ConcurrentDictionary<uint, BookProxy>();
 
 
 		public static BookDao Instance
@@ -33,7 +32,7 @@ namespace Database.BookService.DatabaseAccess
 		public IList<Book> FindAll()
 		{
 			DataSet resultSet = DBWorker.ExecuteQuery(Books.FIND_ALL, null);
-			IList<Book> books = ParseBooks(resultSet);
+			IList<Book> books = ParseBooks(resultSet.Tables[0]);
 			resultSet.Dispose();
 
 			return books;
@@ -49,12 +48,11 @@ namespace Database.BookService.DatabaseAccess
 			};
 
 			DataSet resultSet = DBWorker.ExecuteQuery(Books.FIND_BY_AUTHOR, args);
-			IList<Book> books = ParseBooks(resultSet);
+			IList<Book> books = ParseBooks(resultSet.Tables[0]);
 			resultSet.Dispose();
 
 			return books;
 		}
-
 
 		public IList<Book> FindBySection(Book.section section)
 		{
@@ -63,7 +61,7 @@ namespace Database.BookService.DatabaseAccess
 			};
 
 			DataSet resultSet = DBWorker.ExecuteQuery(Books.FIND_BY_SECTION, args);
-			IList<Book> books = ParseBooks(resultSet);
+			IList<Book> books = ParseBooks(resultSet.Tables[0]);
 			resultSet.Dispose();
 
 			return books;
@@ -77,19 +75,18 @@ namespace Database.BookService.DatabaseAccess
 			};
 
 			DataSet resultSet = DBWorker.ExecuteQuery(Books.FIND_BY_TITLE, args);
-			IList<Book> books = ParseBooks(resultSet);
+			IList<Book> books = ParseBooks(resultSet.Tables[0]);
 			resultSet.Dispose();
 
 			return books;
 		}
 
-		/*
-		 * Results of the execution of the following operations are cached
-		 */
+		/* ----- Results of the execution of the following operations are cached -----*/
 
 		public Book FindById(uint id)
 		{
-			Book book;
+			BookProxy book;
+
 			if (cache.TryGetValue(id, out book)) {
 				return book;
 			}
@@ -108,21 +105,22 @@ namespace Database.BookService.DatabaseAccess
 			return book;
 		}
 
+		/* Query book from database and update properties
+		 * of passed book in accordance with the result
+		 * of the query
+		 */
+
 		public Book Refresh(Book book)
 		{
-			Book temp;
+			BookProxy temp;
 
-			if(cache.TryGetValue(book.Id, out temp)) {
+			if(cache.TryGetValue(book.Id, out temp) && book is BookProxy) {
 				book.Title		 = temp.Title;
 				book.Section	 = temp.Section;
 				book.Description = temp.Description;
 
-				if (temp.AuthorsAreFetched) {
-					book.Authors = temp.Authors;
-				}
-
 				return book;
-			} else {
+			} else if (book is BookProxy) {
 				var args = new Dictionary<string, string> {
 					{ "@id", book.Id.ToString() }
 				};
@@ -134,80 +132,130 @@ namespace Database.BookService.DatabaseAccess
 				book.Section = temp.Section;
 				book.Description = temp.Description;
 
-				cache.AddOrUpdate(book.Id, book, (key, old) => book);
+				cache.AddOrUpdate(book.Id, (BookProxy) book, 
+					(key, old) => (BookProxy) book
+				);
 
 				return book;
-			}
-		}
-
-		public Book Save(Book book)
-		{
-			var args = new Dictionary<string, string> {
-				{ "@id", book.Id.ToString() }
-			};
-
-			DataSet resultSet = DBWorker.ExecuteQuery(Books.COUNT, args);
-
-			int count = Int32.Parse(resultSet.Tables[0].Rows[0].ItemArray[0].ToString());
-
-			args.Add("@title", book.Title);
-			args.Add("@section", book.Section.ToString());
-			args.Add("@description", book.Description);
-
-			if (count != 0) {
-				DBWorker.ExecuteNonQuery(Books.UPDATE, args);
-
-				cache.AddOrUpdate(book.Id, book, (key, old) => { 
-					old.Title = book.Title;
-					old.Description = book.Description;
-					old.Section = book.Section;
-					if (book.AuthorsAreFetched) {
-						old.Authors = book.Authors;
-					}
-
-					return old;
-				});
-			} else {
-				DBWorker.ExecuteNonQuery(Books.INSERT, args);
-				cache.TryAdd(book.Id, book);
 			}
 
 			return book;
 		}
 
-		public void Delete(Book book)
+		public Book Save(Book book)
 		{
 			var args = new Dictionary<string, string> {
-				{ "@id", book.Id.ToString() }
+				{ "@id", book.Id.ToString() }, { "@title", book.Title },
+				{ "@rating", book.Rating.ToString() },
+				{ "@section", book.Section.ToString() },
+				{ "@description", book.Description}
 			};
 
-			DBWorker.ExecuteNonQuery(Books.DELETE, args);
-			DBWorker.ExecuteNonQuery(Intermediate.DELETE_BY_BOOK, args);
-			cache.TryRemove(book.Id, out _);
+			// update
+			if (book is BookProxy) {
+				BookProxy proxy = (BookProxy)book;
+
+				DBWorker.ExecuteNonQuery(Books.UPDATE, args);
+				cache.AddOrUpdate(book.Id, proxy, (key, oldValue) => proxy);
+
+				if (proxy.AuthorsAreFetched) {
+
+				}
+				
+			} else {
+				args.Remove("@id");
+				BookProxy proxy = new BookProxy(book);
+				uint id = DBWorker.InsertAndReturnId(Books.INSERT, args);
+				proxy.Id = id;
+
+				return proxy;
+			}
+
+			return book;
 		}
 
-		private IList<Book> ParseBooks(DataSet dataSet)
+		public IList<Book> FindByRating(float from, float to)
+		{
+
+			if (from >= 0.0f && from <= 10.0f && from <= to && to <= 10.0f) {
+				var args = new Dictionary<string, string>() {
+					{ "@from", from.ToString() },
+					{ "@to", from.ToString() }
+				};
+
+				DataSet dataSet = DBWorker.ExecuteQuery(Books.FIND_BY_RATING_IN_RANGE, args);
+				IList<Book> books = ParseBooks(dataSet.Tables[0]);
+				dataSet.Dispose();
+
+				return books;
+			}
+
+			return null;
+		}
+
+		public IList<Book> FindByRating(float rating)
+		{
+			if (rating >= 0.0f && rating <= 10.0f) {
+				var args = new Dictionary<string, string>() {
+					{ "@rating", rating.ToString() }
+				};
+
+				DataSet dataSet = DBWorker.ExecuteQuery(Books.FIND_BY_RATING, args);
+				IList<Book> books = ParseBooks(dataSet.Tables[0]);
+				dataSet.Dispose();
+
+				return books;
+			}
+
+			return null;
+		}
+
+
+
+		public void Delete(Book book)
+		{
+
+			if (book is BookProxy) {
+
+				var args = new Dictionary<string, string> {
+					{ "@id", book.Id.ToString() }
+				};
+
+				// Delete from book table
+				DBWorker.ExecuteNonQuery(Books.DELETE, args);
+
+				// Delete all rows in the intermediate table
+				// that have book_id column value equals to @id
+				DBWorker.ExecuteNonQuery(Intermediate.DELETE_BY_BOOK, args);
+
+				// Remove it from cache
+				cache.TryRemove(book.Id, out _);
+			}
+		}
+
+		/* ----- ---------------------------------------------------------------------- ----- */
+
+
+		private IList<Book> ParseBooks(DataTable table)
 		{
 			IList<Book> books = new List<Book>();
-			DataSet resultSet = DBWorker.ExecuteQuery(Books.FIND_ALL, null);
-			DataTable dataTable = resultSet.Tables[0];
-
-			foreach (DataRow row in dataTable.Rows) {
-				Book book = new Book();
-				object[] items = row.ItemArray;
-				books.Add(ParseBook(items));
+		
+			foreach (DataRow row in table.Rows) {
+				BookProxy book = ParseBook(row.ItemArray);
+				books.Add(book);
 			}
 
 			return books;
 		}
 
-		private Book ParseBook(object[] columns)
+		private BookProxy ParseBook(object[] row)
 		{
-			Book book = new Book {
-				Id = UInt32.Parse(columns[0].ToString()),
-				Title = (String)columns[1],
-				Section = BookUtils.ParseSection(columns[2].ToString()),
-				Description = columns[3].ToString()
+			BookProxy book = new BookProxy {
+				Id = UInt32.Parse(row[0].ToString()),
+				Title = (String)row[1],
+				Section = BookUtils.ParseSection(row[2].ToString()),
+				Description = row[3].ToString(),
+				Rating = float.Parse(row[4].ToString())
 			};
 
 			return book;

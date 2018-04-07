@@ -14,6 +14,8 @@ namespace Database.BookService.DatabaseAccess
 		IList<Book> FindBySection(Book.section section);
 		IList<Book> FindByAuthor(Author author);
 		IList<Book> FindByTitle(string title);
+		IList<Book> FindByRating(float from, float to);
+		IList<Book> FindByRating(float rating);
 		bool BookIsPresent(Book book);
 
 		Book Save(Book book);

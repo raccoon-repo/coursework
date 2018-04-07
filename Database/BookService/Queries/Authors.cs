@@ -14,7 +14,7 @@ namespace Database.BookService.Queries
 			"SELECT * FROM author";
 		public const string FIND_BY_NAME =
 			"SELECT * FROM author a WHERE a.fisrt_name = @first_name AND a.last_name = @last_name";
-		public const string COUNT =
+		public const string COUNT_BY_ID =
 			"SELECT COUNT(*) FROM author a WHERE a.id = @id";
 
 		public const string FETCH_BOOKS =

@@ -9,26 +9,20 @@ namespace Database.BookService
 {
 	public class Book
 	{
-		private uint id;
-		private bool idIsSet = false;
-		private bool authorsAreLoaded = false;
+		private uint id = 0;
 
 		private string title;
-		private IList<Author> authors = new List<Author>();
+		private ISet<Author> authors;
 		private section _section;
 		private string description;
+		private float rating;
 
-		public uint Id {
+		public virtual uint Id {
 			get {
 				return id;
 			}
 			set {
-				if (idIsSet)
-					throw new InvalidOperationException("Id of the book can be set only once");
-				else {
-					idIsSet = true;
-					id = value;
-				}
+				id = value;
 			}
 		}
 
@@ -59,13 +53,9 @@ namespace Database.BookService
 			}
 		}
 
-		public IList<Author> Authors
+		public virtual ISet<Author> Authors
 		{
 			get {
-				if (!authorsAreLoaded) {
-					authorsAreLoaded = true;
-				}
-
 				return authors;
 			}
 			set {
@@ -73,13 +63,7 @@ namespace Database.BookService
 			}
 		}
 
-		public bool AuthorsAreFetched
-		{
-			get {
-				return authorsAreLoaded;
-			}
-			private set { }
-		}
+		public float Rating { get; set; }
 
 		public enum section
 		{

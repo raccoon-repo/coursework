@@ -12,6 +12,7 @@ namespace Database.BookService.DatabaseAccess
 
 		IList<Author> FindAll();
 		IList<Author> FindByName(string firstName, string lastName);
+		IList<Author> FindByBook(Book book);
 
 		Author Save(Author author);
 		Author Refresh(Author author);

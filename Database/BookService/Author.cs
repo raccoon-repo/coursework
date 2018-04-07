@@ -11,31 +11,31 @@ namespace Database.BookService
 		private uint id = 0;
 		private string firstName;
 		private string lastName;
-		private IList<Book> books = new List<Book>();
+		private ISet<Book> books;
 
-		private bool booksAreSet = false;
+		private bool booksAreFetched = false;
 		private bool idIsSet = false;
 
 		public uint Id {
 			get {
 				return id;
-			} set {
-				if (idIsSet) {
-					throw new InvalidOperationException("Id can be set only once");
-				} else {
-					idIsSet = true;
-					id = value;
-				}
+			}
+			set {
+				id = value;
 			}
 		}
+
+		public bool BooksAreFetched { get; private set; }
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
-		public IList<Book> Books
+		public ISet<Book> Books
 		{
 			get {
 				return books;
 			}
-			private set { }
+			set {
+				books = value;
+			}
 		}
 
 		public void AddBook(Book b)
