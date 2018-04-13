@@ -14,8 +14,8 @@ namespace Database.BookService.DatabaseAccess
 	public class BookDao : IBookDao
 	{
 		private static readonly BookDao instance = new BookDao();
-		private static ConcurrentDictionary<uint, BookProxy> cache = 
-			new ConcurrentDictionary<uint, BookProxy>();
+		private static ConcurrentDictionary<int, Book> cache = 
+			new ConcurrentDictionary<int, Book>();
 
 
 		public static BookDao Instance
@@ -54,7 +54,7 @@ namespace Database.BookService.DatabaseAccess
 			return books;
 		}
 
-		public IList<Book> FindBySection(Book.section section)
+		public IList<Book> FindBySection(BookSection section)
 		{
 			var args = new Dictionary<string, string> {
 				{ "@section", section.ToString() }
@@ -83,9 +83,9 @@ namespace Database.BookService.DatabaseAccess
 
 		/* ----- Results of the execution of the following operations are cached -----*/
 
-		public Book FindById(uint id)
+		public Book FindById(int id)
 		{
-			BookProxy book;
+			Book book;
 
 			if (cache.TryGetValue(id, out book)) {
 				return book;
@@ -105,22 +105,22 @@ namespace Database.BookService.DatabaseAccess
 			return book;
 		}
 
-		/* Query book from database and update properties
+		/* Query book from cache or database and update properties
 		 * of passed book in accordance with the result
 		 * of the query
 		 */
 
 		public Book Refresh(Book book)
 		{
-			BookProxy temp;
+			Book temp;
 
-			if(cache.TryGetValue(book.Id, out temp) && book is BookProxy) {
+			if(cache.TryGetValue(book.Id, out temp)) {
 				book.Title		 = temp.Title;
 				book.Section	 = temp.Section;
 				book.Description = temp.Description;
 
 				return book;
-			} else if (book is BookProxy) {
+			} else {
 				var args = new Dictionary<string, string> {
 					{ "@id", book.Id.ToString() }
 				};
@@ -132,46 +132,118 @@ namespace Database.BookService.DatabaseAccess
 				book.Section = temp.Section;
 				book.Description = temp.Description;
 
-				cache.AddOrUpdate(book.Id, (BookProxy) book, 
-					(key, old) => (BookProxy) book
-				);
+				cache.AddOrUpdate(book.Id, book, (a, b) => book);
 
 				return book;
 			}
-
-			return book;
 		}
 
-		public Book Save(Book book)
+		public void Save(Book book, SaveOption option)
+		{
+			Save(book, option, new HashSet<int>(), new HashSet<int>());
+		}
+
+		public void Save(Book book, SaveOption option, ISet<int> savedAuthors, ISet<int> savedBooks)
+		{
+			var args = new Dictionary<string, string> {
+				{ "@id", book.Id.ToString() }
+			};
+
+			uint count = GetCount(Books.COUNT_BY_ID, args);
+
+			if (count != 0) {
+				if (option == SaveOption.SAVE_ONLY) {
+					return;
+				} else if (option == SaveOption.UPDATE_IF_EXIST) {
+					Update(book, savedAuthors, savedBooks);
+					return;
+				}
+			}
+
+			args.Remove("@id");
+			args.Add("@title", book.Title);
+			args.Add("@rating", Utils.Utils.FloatToString(book.Rating));
+			args.Add("@section", book.Section.ToString());
+			args.Add("@description", book.Description);
+
+			book.Id = DBWorker.InsertAndReturnId(Books.INSERT, args);
+			savedBooks.Add(book.Id);
+
+			foreach (var author in book.Authors) {
+				if (!savedAuthors.Contains(author.Id)) {
+					AuthorDao.Instance.Save(author, SaveOption.UPDATE_IF_EXIST, 
+											savedAuthors, savedBooks);
+				}
+
+				args.Clear();
+				args.Add("@book_id", book.Id.ToString());
+				args.Add("@author_id", author.Id.ToString());
+
+				count = GetCount(JoinTable.COUNT, args);
+				if (count == 0) {
+					DBWorker.ExecuteNonQuery(JoinTable.INSERT, args);
+				}
+			}
+
+			BookProxy proxy = new BookProxy(book);
+			cache.TryAdd(proxy.Id, proxy);
+		}
+
+		public void Update(Book book)
 		{
 			var args = new Dictionary<string, string> {
 				{ "@id", book.Id.ToString() }, { "@title", book.Title },
-				{ "@rating", book.Rating.ToString() },
-				{ "@section", book.Section.ToString() },
-				{ "@description", book.Description}
+				{ "@description", book.Description},
+				{ "@rating", Utils.Utils.FloatToString(book.Rating) },
+				{ "@section", book.Section.ToString() }
 			};
 
-			// update
-			if (book is BookProxy) {
-				BookProxy proxy = (BookProxy)book;
+			DBWorker.ExecuteNonQuery(Books.UPDATE, args);
 
-				DBWorker.ExecuteNonQuery(Books.UPDATE, args);
-				cache.AddOrUpdate(book.Id, proxy, (key, oldValue) => proxy);
-
-				if (proxy.AuthorsAreFetched) {
-
-				}
-				
-			} else {
-				args.Remove("@id");
+			if (book is BookProxy) 
+			{
+				cache.AddOrUpdate(book.Id, book, (a, b) => book);
+			} 
+			else 
+			{
 				BookProxy proxy = new BookProxy(book);
-				uint id = DBWorker.InsertAndReturnId(Books.INSERT, args);
-				proxy.Id = id;
-
-				return proxy;
+				cache.AddOrUpdate(book.Id, proxy, (a, b) => proxy);
 			}
+		}
 
-			return book;
+		public void Update(Book book, ISet<int> updatedAuthors, ISet<int> updatedBooks)
+		{
+			if(!updatedBooks.Contains(book.Id)) {
+				Update(book);
+				updatedBooks.Add(book.Id);
+				var actualAuthors = new HashSet<int>();
+
+				if ((book is BookProxy proxy && proxy.AuthorsAreFetched) || 
+					(!(book is BookProxy) && book.Authors.Count != 0)) 
+				{
+					foreach (var author in book.Authors) {
+						if (!updatedAuthors.Contains(author.Id)) {
+							AuthorDao.Instance.Save(author, SaveOption.UPDATE_IF_EXIST,
+													updatedAuthors, updatedBooks);
+						}
+
+						actualAuthors.Add(author.Id);
+					}
+
+					var fetchedAuthors = GetAuthorsId(book);
+					var args = new Dictionary<string, string>();
+
+					foreach (var id in actualAuthors) {
+						if (!fetchedAuthors.Contains(id)) {
+							args.Add("@author_id", id.ToString());
+							args.Add("@book_id", book.Id.ToString());
+							DBWorker.ExecuteNonQuery(JoinTable.DELETE, args);
+						}
+					}
+				}
+
+
+			}
 		}
 
 		public IList<Book> FindByRating(float from, float to)
@@ -226,7 +298,7 @@ namespace Database.BookService.DatabaseAccess
 
 				// Delete all rows in the intermediate table
 				// that have book_id column value equals to @id
-				DBWorker.ExecuteNonQuery(Intermediate.DELETE_BY_BOOK, args);
+				DBWorker.ExecuteNonQuery(JoinTable.DELETE_BY_BOOK, args);
 
 				// Remove it from cache
 				cache.TryRemove(book.Id, out _);
@@ -251,14 +323,37 @@ namespace Database.BookService.DatabaseAccess
 		private BookProxy ParseBook(object[] row)
 		{
 			BookProxy book = new BookProxy {
-				Id = UInt32.Parse(row[0].ToString()),
+				Id = Int32.Parse(row[0].ToString()),
 				Title = (String)row[1],
-				Section = BookUtils.ParseSection(row[2].ToString()),
 				Description = row[3].ToString(),
+				Section = BookUtils.ParseSection(row[2].ToString()),
 				Rating = float.Parse(row[4].ToString())
 			};
 
+
 			return book;
+		}
+
+		private uint GetCount(string sqlStatement, Dictionary<string, string> args)
+		{
+			object o_count = DBWorker.ExecuteScalar(sqlStatement, args);
+			return UInt32.Parse(o_count.ToString());
+		}
+
+		private ISet<int> GetAuthorsId(Book book)
+		{
+			var args = new Dictionary<string, string>() {
+				{ "@book_id", book.Id.ToString() }
+			};
+
+			DataSet ds = DBWorker.ExecuteQuery(JoinTable.AUTHORS_ID, args);
+			var set = new HashSet<int>();
+			foreach (DataRow row in ds.Tables[0].Rows) {
+				int id = Int32.Parse(row.ItemArray[0].ToString());
+				set.Add(id);
+			}
+
+			return set;
 		}
 	}
 }

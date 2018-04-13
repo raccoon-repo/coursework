@@ -8,14 +8,14 @@ namespace Database.BookService.Utils
 {
 	public static class BookUtils
 	{
-		public static Book.section ParseSection(string section)
+		public static BookSection ParseSection(string section)
 		{
 			section = section.ToUpper().Trim();
-			Book.section bs;
+			BookSection bs;
 			bool parsingResult = Enum.TryParse(section, out bs);
 
 			if (!parsingResult) {
-				bs = Book.section.OTHER;
+				bs = BookSection.OTHER;
 			}
 
 			return bs;

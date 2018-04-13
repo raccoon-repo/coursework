@@ -10,8 +10,8 @@ namespace Database.BookService.DatabaseAccess
 	public class AuthorDao : IAuthorDao
 	{
 		private static readonly AuthorDao instance = new AuthorDao();
-		private static ConcurrentDictionary<uint, Author> cache =
-			new ConcurrentDictionary<uint, Author>();
+		private static ConcurrentDictionary<int, Author> cache =
+			new ConcurrentDictionary<int, Author>();
 
 		public static AuthorDao Instance
 		{
@@ -26,9 +26,11 @@ namespace Database.BookService.DatabaseAccess
 		{
 			DataSet resultSet = DBWorker.ExecuteQuery(Authors.FIND_ALL, null);
 			DataTable dataTable = resultSet.Tables[0];
-			DataTableReader dtr = new DataTableReader(dataTable);
 
-			return null;
+			IList<Author> authors = ParseAuthors(dataTable);
+			resultSet.Dispose();
+
+			return authors;
 
 		}
 
@@ -67,12 +69,9 @@ namespace Database.BookService.DatabaseAccess
 			return authors;
 		}
 
-		public Author FindById(uint id)
+		public Author FindById(int id)
 		{
-			if (id == 0)
-				return null;
-			Author temp;
-			
+			Author temp;		
 			if(cache.TryGetValue(id, out temp)) {
 				return temp;
 			}
@@ -82,6 +81,7 @@ namespace Database.BookService.DatabaseAccess
 			};
 			DataSet dataSet = DBWorker.ExecuteQuery(Authors.FIND_BY_ID, args);
 			temp = ParseAuthor(dataSet.Tables[0].Rows[0].ItemArray);
+			dataSet.Dispose();
 
 			cache.TryAdd(id, temp);
 
@@ -97,14 +97,13 @@ namespace Database.BookService.DatabaseAccess
 				{ "@id", author.Id.ToString() }
 			};
 
-			object o_count = DBWorker.ExecuteScalar(Authors.COUNT_BY_ID, args);
-			uint count = UInt32.Parse(o_count.ToString());
+			uint count = GetCount(Authors.COUNT_BY_ID, args);
 
 			if (count == 0)
 				return;
 
 			DBWorker.ExecuteNonQuery(Authors.DELETE, args);
-			DBWorker.ExecuteNonQuery(Intermediate.DELETE_BY_AUTHOR, args);
+			DBWorker.ExecuteNonQuery(JoinTable.DELETE_BY_AUTHOR, args);
 			cache.TryRemove(author.Id, out _);
 		}
 
@@ -118,10 +117,6 @@ namespace Database.BookService.DatabaseAccess
 				author.FirstName = temp.FirstName;
 				author.LastName  = temp.LastName;
 				
-				if (temp.BooksAreFetched) {
-					author.Books = temp.Books;
-				}
-
 				return author;
 			} else {
 
@@ -139,35 +134,113 @@ namespace Database.BookService.DatabaseAccess
 			}
 		}
 
-		public Author Save(Author author)
+		public void Save(Author author, SaveOption option) 
 		{
-			
-			var args = new Dictionary<string, string>() {
+			Save(author, option, new HashSet<int>(), new HashSet<int>());
+		}
+
+		public void Save(Author author, SaveOption option, ISet<int> savedAuthors, ISet<int> savedBooks)
+		{
+			var args = new Dictionary<string, string> {
 				{ "@id", author.Id.ToString() }
 			};
 
-			// check if the author with the same id does exist
-			object o_count = DBWorker.ExecuteScalar(Authors.COUNT_BY_ID, args);
-			uint count = UInt32.Parse(o_count.ToString());
+			uint count = GetCount(Authors.COUNT_BY_ID, args);
+
+			if (count != 0) {
+				if (option == SaveOption.SAVE_ONLY) {
+					return;
+				} else if (option == SaveOption.UPDATE_IF_EXIST) {
+					Update(author, savedAuthors, savedBooks);
+					return;
+				}
+			}
 
 			args.Add("@first_name", author.FirstName);
 			args.Add("@last_name", author.LastName);
 
-			// if yes, update
-			// otherwise, save it
-			if (count != 0) {
-				DBWorker.ExecuteNonQuery(Authors.UPDATE, args);
-				cache.AddOrUpdate(author.Id, author, (key, old) => author);
-				return author;
-			} else {
-				args.Remove("@id");
-				//insert it and get id for this author
-				author.Id = DBWorker.InsertAndReturnId(Authors.INSERT, args);
-				cache.TryAdd(author.Id, author);
+			author.Id = DBWorker.InsertAndReturnId(Authors.INSERT, args);
+			savedAuthors.Add(author.Id);
 
-				return author;
+			foreach (var book in author.Books) {
+				if (!savedBooks.Contains(book.Id)) {
+					BookDao.Instance.Save(book, SaveOption.UPDATE_IF_EXIST, savedAuthors, savedBooks);
+
+				}
+
+				args.Clear();
+				args.Add("@book_id", book.Id.ToString());
+				args.Add("@author_id", author.Id.ToString());
+
+				count = GetCount(JoinTable.COUNT, args);
+				if (count == 0) { 
+					DBWorker.ExecuteNonQuery(JoinTable.INSERT, args);
+				}
+			}
+
+			AuthorProxy proxy = new AuthorProxy(author);
+			cache.TryAdd(proxy.Id, proxy);
+		}
+
+		public void Update(Author author)
+		{
+			var args = new Dictionary<string, string>() {
+				{ "@id", author.Id.ToString() },
+				{ "@first_name", author.FirstName },
+				{ "@last_name", author.LastName }
+			};
+
+			DBWorker.ExecuteNonQuery(Authors.UPDATE, args);
+
+			if (author is AuthorProxy) 
+			{
+				cache.AddOrUpdate(author.Id, author, (a, b) => author);
+			} 
+			else 
+			{
+				AuthorProxy proxy = new AuthorProxy(author);
+				cache.AddOrUpdate(author.Id, proxy, (a, b) => proxy);
+			}
+
+		}
+
+		public void Update(Author author, ISet<int> updatedAuthors, ISet<int> updatedBooks)
+		{
+			if (!updatedAuthors.Contains(author.Id)) {
+				Update(author);
+				updatedAuthors.Add(author.Id);
+				var actualBooks = new HashSet<int>();
+
+				// check if reference's type is AuthorProxy and its books 
+				// are loaded in order not to fetch authors from database
+				// or if it is new object that might not be in the database
+				if ((author is AuthorProxy proxy && proxy.BooksAreFetched) || 
+					(!(author is AuthorProxy) && author.Books.Count != 0)) 
+				{
+					foreach (var book in author.Books) {
+						if (!updatedBooks.Contains(book.Id)) 
+						{
+							BookDao.Instance.Save(book, SaveOption.UPDATE_IF_EXIST,
+												  updatedAuthors, updatedBooks);
+						}
+							actualBooks.Add(book.Id);
+					}
+
+					var fetchedBooks = GetBooksIdByAuthor(author);
+					var args = new Dictionary<string, string>();
+
+					foreach (int id in actualBooks) {
+						if (!fetchedBooks.Contains(id)) {
+							args.Clear();
+							args.Add("@book_id", id.ToString());
+							args.Add("@author_id", author.Id.ToString());
+							DBWorker.ExecuteNonQuery(JoinTable.DELETE, args);
+						}
+					}
+				}
 			}
 		}
+
 
 		private IList<Author> ParseAuthors(DataTable dataTable)
 		{
@@ -183,13 +256,36 @@ namespace Database.BookService.DatabaseAccess
 
 		private Author ParseAuthor(object[] row)
 		{
-			Author author = new Author() {
-				Id = UInt32.Parse(row[0].ToString()),
+			AuthorProxy author = new AuthorProxy() {
+				Id = Int32.Parse(row[0].ToString()),
 				FirstName = row[1].ToString(),
 				LastName = row[2].ToString()
 			};
 
 			return author;
+		}
+
+		private uint GetCount(string sqlStatement, Dictionary<string, string> args)
+		{
+			object o_count = DBWorker.ExecuteScalar(sqlStatement, args);
+			return UInt32.Parse(o_count.ToString());
+		}
+
+		private ISet<int> GetBooksIdByAuthor(Author author)
+		{
+			var args = new Dictionary<string, string> {
+				{ "@author_id", author.Id.ToString() }
+			};
+
+			DataSet ds = DBWorker.ExecuteQuery(JoinTable.BOOKS_ID, args);
+			var set = new HashSet<int>();
+
+			foreach (DataRow row in ds.Tables[0].Rows) {
+				int id = Int32.Parse(row.ItemArray[0].ToString());
+				set.Add(id);
+			}
+
+			return set;
 		}
 	}
 }

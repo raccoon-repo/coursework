@@ -9,68 +9,79 @@ namespace Database.BookService
 {
 	public class Book
 	{
-		private uint id = 0;
+		private int id = 0;
 
 		private string title;
-		private ISet<Author> authors;
-		private section _section;
+		private ISet<Author> authors = new HashSet<Author>();
+		private BookSection section;
 		private string description;
-		private float rating;
+		private float rating = 0.0f;
 
-		public virtual uint Id {
-			get {
-				return id;
-			}
-			set {
-				id = value;
-			}
+		public Book() { }
+		public Book(string title) {
+			this.title = title;
+		}
+
+		public int Id {
+			get { return id; }
+			set { id = value; }
 		}
 
 		public string Title {
-			get {
-				return title;
-			}
-			set {
-				title = value;
-			}
+			get { return title; }
+			set { title = value; }
 		}
 
-		public section Section {
-			get {
-				return _section;
-			}
-			set {
-				_section = value;
-			}
+		public BookSection Section {
+			get { return section;  }
+			set { section = value; }
 		}
 
 		public string Description {
-			get {
-				return description;
-			}
-			set {
-				description = value;
+			get { return description; }
+			set { description = value; }
+		}
+
+		public virtual ISet<Author> Authors {
+			get { return authors; }
+			set { authors = value; }
+		}
+
+		public  void AddAuthor(Author author)
+		{
+			authors.Add(author);
+
+			if (!author.Books.Contains(this)) {
+				author.AddBook(this);
 			}
 		}
 
-		public virtual ISet<Author> Authors
+		public void RemoveAuthor(Author author)
 		{
-			get {
-				return authors;
-			}
-			set {
-				authors = value;
+			authors.Remove(author);
+
+			if(author.Books.Contains(this)) {
+				author.RemoveBook(this);
 			}
 		}
 
-		public float Rating { get; set; }
+		public float Rating {
+			get { return rating; }
+			set { rating = value; }
+		}
 
-		public enum section
+		public override bool Equals(object obj)
 		{
-			FICTION, HOBBY, SELF_DEVELOPMENT, ECONOMY,
-			SCIENCE, ART, FOREIGN_LANGUAGES, PROGRAMMING,
-			TECHNOLOGIES, COOKERY, TRAVELS, DOCUMENTARY,
-			HISTORY, OTHER
+			if (obj is Book book) {
+				return this.id == book.id && title.Equals(book.title);
+			}
+
+			return false;
+		}
+
+		public override int GetHashCode()
+		{
+			return id.GetHashCode();
 		}
 	}
 }

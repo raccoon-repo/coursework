@@ -8,27 +8,30 @@ namespace Database.BookService
 {
 	public class Author
 	{
-		private uint id = 0;
-		private string firstName;
-		private string lastName;
-		private ISet<Book> books;
+		private int id = 0;
+		private string firstName = "";
+		private string lastName = "";
+		private ISet<Book> books = new HashSet<Book>();
 
-		private bool booksAreFetched = false;
-		private bool idIsSet = false;
-
-		public uint Id {
-			get {
-				return id;
-			}
-			set {
-				id = value;
-			}
+		public Author() { }
+		public Author(string firstName) {
+			this.firstName = firstName;
 		}
 
-		public bool BooksAreFetched { get; private set; }
-		public string FirstName { get; set; }
-		public string LastName { get; set; }
-		public ISet<Book> Books
+		public int Id {
+			get { return id; }
+			set { id = value; }
+		}
+
+		public string FirstName {
+			get { return firstName; }
+			set { firstName = value; }
+		}
+		public string LastName {
+			get { return lastName; }
+			set { lastName = value;  }
+		}
+		public virtual ISet<Book> Books
 		{
 			get {
 				return books;
@@ -38,14 +41,37 @@ namespace Database.BookService
 			}
 		}
 
-		public void AddBook(Book b)
+
+		public void AddBook(Book book)
 		{
-			books.Add(b);
+			books.Add(book);
+
+			if (!book.Authors.Contains(this)) {
+				book.AddAuthor(this);
+			}
 		}
 
-		public void RemoveBook(Book b)
+		public void RemoveBook(Book book)
 		{
-			books.Remove(b);
+			books.Remove(book);
+
+			if(book.Authors.Contains(this)) {
+				book.AddAuthor(this);
+			}
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (obj is Author author) {
+				return id == author.id && firstName.Equals(author.firstName) && lastName.Equals(author.LastName);
+			}
+
+			return false;
+		}
+
+		public override int GetHashCode()
+		{
+			return id.GetHashCode();
 		}
 	}
 }

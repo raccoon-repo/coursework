@@ -64,9 +64,9 @@ namespace Database.BookService.DatabaseAccess
 
 
 		//return id of the inserted row
-		public static uint InsertAndReturnId(string sqlStatement, IDictionary<string, string> args)
+		public static int InsertAndReturnId(string sqlStatement, IDictionary<string, string> args)
 		{
-			uint lastId;
+			int lastId;
 
 			using (MySqlConnection connection = new MySqlConnection(ConnectionString)) 
 			{
@@ -79,7 +79,7 @@ namespace Database.BookService.DatabaseAccess
 				connection.Open();
 				try {
 					cmd.ExecuteNonQuery();
-					lastId = UInt32.Parse(cmd1.ExecuteScalar().ToString());
+					lastId = Int32.Parse(cmd1.ExecuteScalar().ToString());
 				} finally {
 					connection.Close();
 				}
