@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using BookService.Entities;
 
-namespace Database.BookService.Utils
+namespace BookService.Utils
 {
 	public static class BookUtils
 	{

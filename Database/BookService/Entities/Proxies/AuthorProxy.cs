@@ -1,11 +1,6 @@
-﻿using Database.BookService.DatabaseAccess;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Database.BookService.Proxies
+﻿using System.Collections.Generic;
+using BookService.DatabaseAccess.Impl;
+namespace BookService.Entities.Proxies
 {
 	public class AuthorProxy : Author
 	{

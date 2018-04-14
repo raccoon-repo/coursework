@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Database.BookService.Queries;
+using BookService.DatabaseAccess.Queries;
 using System.Data;
 using System.Collections.Concurrent;
-using Database.BookService.Proxies;
+using BookService.Entities;
+using BookService.Entities.Proxies;
 
-namespace Database.BookService.DatabaseAccess
+namespace BookService.DatabaseAccess.Impl
 {
 	public class AuthorDao : IAuthorDao
 	{

@@ -1,22 +1,21 @@
-﻿using Database.BookService.Proxies;
-using Database.BookService.Queries;
-using Database.BookService.Utils;
+﻿using BookService.Entities;
+using BookService.Entities.Proxies;
+using BookService.DatabaseAccess.Queries;
+using BookService.Utils;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Database.BookService.DatabaseAccess
+namespace BookService.DatabaseAccess.Impl
 {
 	public class BookDao : IBookDao
 	{
 		private static readonly BookDao instance = new BookDao();
+		
+		// Cached instances are stored here
 		private static ConcurrentDictionary<int, Book> cache = 
 			new ConcurrentDictionary<int, Book>();
-
 
 		public static BookDao Instance
 		{
@@ -105,22 +104,21 @@ namespace Database.BookService.DatabaseAccess
 			return book;
 		}
 
-		/* Query book from cache or database and update properties
-		 * of passed book in accordance with the result
-		 * of the query
-		 */
-
 		public Book Refresh(Book book)
 		{
 			Book temp;
 
-			if (cache.TryGetValue(book.Id, out temp)) {
+			// check first if book is already cached
+			if (cache.TryGetValue(book.Id, out temp)) 
+			{
 				book.Title		 = temp.Title;
 				book.Section	 = temp.Section;
 				book.Description = temp.Description;
 
 				return book;
-			} else {
+			} 
+			else // if not - query data from database
+			{
 				var args = new Dictionary<string, string> {
 					{ "@id", book.Id.ToString() }
 				};
@@ -151,12 +149,14 @@ namespace Database.BookService.DatabaseAccess
 
 			uint count = GetCount(Books.COUNT_BY_ID, args);
 
-			if (count != 0) {
-				if (option == SaveOption.SAVE_ONLY) {
-					return;
-				} else if (option == SaveOption.UPDATE_IF_EXIST) {
-					Update(book, savedAuthors, savedBooks);
-					return;
+			if (count != 0) 
+			{
+				switch (option) {
+					case SaveOption.SAVE_ONLY:
+						return;
+					case SaveOption.UPDATE_IF_EXIST:
+						Update(book, savedAuthors, savedBooks);
+						return;
 				}
 			}
 

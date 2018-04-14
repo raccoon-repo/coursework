@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-
-using MySql.Data;
 using MySql.Data.MySqlClient;
 
-namespace Database.BookService.DatabaseAccess
+namespace BookService.DatabaseAccess
 {
 	public static class DBWorker
 	{

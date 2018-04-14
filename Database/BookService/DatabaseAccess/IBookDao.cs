@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using BookService.Entities;
 
-namespace Database.BookService.DatabaseAccess
+// Interface for accessing Book entities
+// stored in the database
+
+namespace BookService.DatabaseAccess
 {
 	public interface IBookDao
 	{
@@ -21,11 +21,19 @@ namespace Database.BookService.DatabaseAccess
 		void Save(Book book, SaveOption option);
 		void Save(Book book, SaveOption option, 
 				  ISet<int> savedAuthors, ISet<int> savedBooks);
+
+		// Update a row in database that corresponds
+		// to given book entity
 		void Update(Book book);
+		
+		// Update book entity and all of its authors
 		void Update(Book book, 
 					ISet<int> updatedAuthors, ISet<int> updatedBooks);
 
-		Book Refresh(Book book);
+		// Fetch corresponding entity from cache or database
+		// then rewrite all book properties in accordance with
+		// previously fetched data
+		Book Refresh(Book book); 
 		void Delete(Book book);
 	}
 }

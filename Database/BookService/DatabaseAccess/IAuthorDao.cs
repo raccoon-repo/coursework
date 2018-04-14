@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using BookService.Entities;
 
-namespace Database.BookService.DatabaseAccess
+// Interface for accessing Author entities
+// stored in the database
+
+namespace BookService.DatabaseAccess
 {
 	public interface IAuthorDao
 	{
