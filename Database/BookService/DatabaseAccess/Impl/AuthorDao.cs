@@ -42,7 +42,7 @@ namespace Database.BookService.DatabaseAccess
 				};
 				IList<Author> authors;
 
-				DataSet dataSet = DBWorker.ExecuteQuery(Books.FETCH_AUTHORS, args);
+				DataSet dataSet = DBWorker.ExecuteQuery(Authors.FETCH_AUTHORS, args);
 				authors = ParseAuthors(dataSet.Tables[0]);
 				dataSet.Dispose();
 
@@ -214,7 +214,7 @@ namespace Database.BookService.DatabaseAccess
 				// check if reference's type is AuthorProxy and its books 
 				// are loaded in order not to fetch authors from database
 				// or if it is new object that might not be in the database
-				if ((author is AuthorProxy proxy && proxy.BooksAreFetched) || 
+				if ((author is AuthorProxy proxy && proxy.BooksAreFetchedOrSet) || 
 					(!(author is AuthorProxy) && author.Books.Count != 0)) 
 				{
 					foreach (var book in author.Books) {

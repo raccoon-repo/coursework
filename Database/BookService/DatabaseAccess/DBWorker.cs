@@ -15,8 +15,8 @@ namespace Database.BookService.DatabaseAccess
 
 		public static void SetConfigurationFor(String conf)
 		{
-			if(conf.Equals("test")) {
-				ConnectionString = "server=localhost;user=books;database=book_service_test;port=3306;password=books";
+			if(conf.ToLower().Equals("test")) {
+				ConnectionString = "server=localhost;user=books;database=test_book_service;port=3306;password=books";
 			} else { 
 				ConnectionString = "server=localhost;user=books;database=book_service;port=3306;password=books";
 			}

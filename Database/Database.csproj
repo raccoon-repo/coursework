@@ -62,8 +62,6 @@
     <Compile Include="BookService\DatabaseAccess\SaveOption.cs" />
     <Compile Include="BookService\Proxies\AuthorProxy.cs" />
     <Compile Include="BookService\Proxies\BookProxy.cs" />
-    <Compile Include="BookService\Proxies\ProxiedAuthorSet.cs" />
-    <Compile Include="BookService\Proxies\ProxiedBookSet.cs" />
     <Compile Include="BookService\Queries\Authors.cs" />
     <Compile Include="BookService\Queries\Books.cs" />
     <Compile Include="BookService\Queries\JoinTable.cs" />

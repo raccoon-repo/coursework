@@ -42,7 +42,7 @@ namespace Database.BookService
 		}
 
 
-		public void AddBook(Book book)
+		public virtual void AddBook(Book book)
 		{
 			books.Add(book);
 
@@ -51,7 +51,7 @@ namespace Database.BookService
 			}
 		}
 
-		public void RemoveBook(Book book)
+		public virtual void RemoveBook(Book book)
 		{
 			books.Remove(book);
 

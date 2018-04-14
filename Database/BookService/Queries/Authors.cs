@@ -17,10 +17,10 @@ namespace Database.BookService.Queries
 		public const string COUNT_BY_ID =
 			"SELECT COUNT(*) FROM author a WHERE a.id = @id";
 
-		public const string FETCH_BOOKS =
-			"SELECT DISTINCT * FROM book b " +
-			"LEFT JOIN book_author ba ON ba.book_id = b.id" +
-			"LEFT JOIN author a ON b.author_id = a.id WHERE a.id = @id";
+		public const string FETCH_AUTHORS =
+			"SELECT DISTINCT a.id, a.first_name, a.last_name FROM author a " +
+			"LEFT JOIN book_author ba ON ba.author_id = a.id " +
+			"LEFT JOIN book b ON ba.book_id = b.id WHERE b.id = @id";
 
 		public const string INSERT =
 			"INSERT INTO author (first_name, last_name) VALUES (@first_name, @last_name)";

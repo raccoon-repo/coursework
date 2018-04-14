@@ -9,7 +9,7 @@ namespace Database.BookService.Proxies
 {
 	public class BookProxy : Book
 	{
-		private bool authorsAreFetched = false;
+		private bool authorsAreFetchedOrSet = false;
 
 		public BookProxy(Book book)
 		{
@@ -18,21 +18,23 @@ namespace Database.BookService.Proxies
 			Rating		= book.Rating;
 			Section		= book.Section;
 			Description = book.Description;
+
+			if(book is BookProxy proxy && proxy.authorsAreFetchedOrSet) {
+				base.Authors = proxy.Authors;
+				authorsAreFetchedOrSet = true;
+			} else if (!(book is BookProxy) && book.Authors.Count != 0) {
+				base.Authors = book.Authors;
+				authorsAreFetchedOrSet = true;
+			}
 		}
 
 		public BookProxy() { }
 
-
 		public override ISet<Author> Authors
 		{
 			get {
-				if(!authorsAreFetched) {
-					authorsAreFetched = true;
-
-					var authors = new HashSet<Author>(
-						AuthorDao.Instance.FindByBook(this));
-	
-					base.Authors = new ProxiedAuthorSet<Author>(authors, this);
+				if(!authorsAreFetchedOrSet) {
+					FetchAuthors();
 				}
 
 				return base.Authors;
@@ -41,8 +43,18 @@ namespace Database.BookService.Proxies
 			
 		}
 
+		public void FetchAuthors()
+		{
+			authorsAreFetchedOrSet = true;
+			base.Authors = new HashSet<Author>(
+				AuthorDao.Instance.FindByBook(this));
 
-		public bool AuthorsAreFetched { get; private set; }
+		}
+
+		public bool AuthorsAreFetchedOrSet {
+			get { return authorsAreFetchedOrSet; }
+			private set { }
+		}
 
 		public override bool Equals(object obj)
 		{
@@ -51,6 +63,22 @@ namespace Database.BookService.Proxies
 			}
 
 			return false;
+		}
+
+		public override void AddAuthor(Author author)
+		{
+			if(!AuthorsAreFetchedOrSet) {
+				FetchAuthors();
+			}
+			base.AddAuthor(author);
+		}
+		
+		public override void RemoveAuthor(Author author)
+		{
+			if(!AuthorsAreFetchedOrSet) {
+				FetchAuthors();
+			}
+			base.RemoveAuthor(author);
 		}
 
 		public override int GetHashCode()

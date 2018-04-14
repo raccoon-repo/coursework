@@ -44,10 +44,10 @@ namespace Database.BookService.DatabaseAccess
 				return null;
 
 			var args = new Dictionary<string, string> {
-				{ "@author_id", author.Id.ToString() }
+				{ "@id", author.Id.ToString() }
 			};
 
-			DataSet resultSet = DBWorker.ExecuteQuery(Books.FIND_BY_AUTHOR, args);
+			DataSet resultSet = DBWorker.ExecuteQuery(Books.FETCH_BOOKS, args);
 			IList<Book> books = ParseBooks(resultSet.Tables[0]);
 			resultSet.Dispose();
 
@@ -88,7 +88,7 @@ namespace Database.BookService.DatabaseAccess
 			Book book;
 
 			if (cache.TryGetValue(id, out book)) {
-				return book;
+				return new BookProxy(book);
 			}
 
 			var args = new Dictionary<string, string> {
@@ -114,7 +114,7 @@ namespace Database.BookService.DatabaseAccess
 		{
 			Book temp;
 
-			if(cache.TryGetValue(book.Id, out temp)) {
+			if (cache.TryGetValue(book.Id, out temp)) {
 				book.Title		 = temp.Title;
 				book.Section	 = temp.Section;
 				book.Description = temp.Description;
@@ -218,7 +218,7 @@ namespace Database.BookService.DatabaseAccess
 				updatedBooks.Add(book.Id);
 				var actualAuthors = new HashSet<int>();
 
-				if ((book is BookProxy proxy && proxy.AuthorsAreFetched) || 
+				if ((book is BookProxy proxy && proxy.AuthorsAreFetchedOrSet) || 
 					(!(book is BookProxy) && book.Authors.Count != 0)) 
 				{
 					foreach (var author in book.Authors) {
@@ -251,8 +251,8 @@ namespace Database.BookService.DatabaseAccess
 
 			if (from >= 0.0f && from <= 10.0f && from <= to && to <= 10.0f) {
 				var args = new Dictionary<string, string>() {
-					{ "@from", from.ToString() },
-					{ "@to", from.ToString() }
+					{ "@from", Utils.Utils.FloatToString(from) },
+					{ "@to", Utils.Utils.FloatToString(to) }
 				};
 
 				DataSet dataSet = DBWorker.ExecuteQuery(Books.FIND_BY_RATING_IN_RANGE, args);
@@ -269,7 +269,7 @@ namespace Database.BookService.DatabaseAccess
 		{
 			if (rating >= 0.0f && rating <= 10.0f) {
 				var args = new Dictionary<string, string>() {
-					{ "@rating", rating.ToString() }
+					{ "@rating", Utils.Utils.FloatToString(rating) }
 				};
 
 				DataSet dataSet = DBWorker.ExecuteQuery(Books.FIND_BY_RATING, args);
@@ -325,8 +325,8 @@ namespace Database.BookService.DatabaseAccess
 			BookProxy book = new BookProxy {
 				Id = Int32.Parse(row[0].ToString()),
 				Title = (String)row[1],
-				Description = row[3].ToString(),
 				Section = BookUtils.ParseSection(row[2].ToString()),
+				Description = row[3].ToString(),
 				Rating = float.Parse(row[4].ToString())
 			};
 

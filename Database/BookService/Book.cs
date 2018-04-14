@@ -47,19 +47,17 @@ namespace Database.BookService
 			set { authors = value; }
 		}
 
-		public  void AddAuthor(Author author)
+		public virtual void AddAuthor(Author author)
 		{
 			authors.Add(author);
-
 			if (!author.Books.Contains(this)) {
 				author.AddBook(this);
 			}
 		}
 
-		public void RemoveAuthor(Author author)
+		public virtual void RemoveAuthor(Author author)
 		{
 			authors.Remove(author);
-
 			if(author.Books.Contains(this)) {
 				author.RemoveBook(this);
 			}

@@ -17,10 +17,6 @@ namespace Database.BookService.Queries
 
 		public const string FIND_BY_TITLE =
 				"SELECT * FROM book AS b WHERE b.title LIKE @title";
-		public const string FIND_BY_AUTHOR =
-				"SELECT DISTINCT * FROM book AS b " +
-				"LEFT JOIN book_author ba ON b.id = ba.book_id " +
-				"LEFT JOIN author a ON a.id = ba.author_id WHERE a.id = @author_id";
 
 		public const string FIND_BY_SECTION =
 				"SELECT DISTINCT * FROM book b WHERE b.section = @section";
@@ -28,12 +24,12 @@ namespace Database.BookService.Queries
 		public const string FIND_BY_RATING_IN_RANGE =
 				"SELECT DISTINCT * FROM book b WHERE b.rating >= @from AND b.rating <= @to";
 		public const string FIND_BY_RATING =
-				"SELECT DISTINCT * FROM book b WHERE b.rating = @rating";
+				"SELECT DISTINCT * FROM book b WHERE b.rating LIKE @rating";
 
-		public const string FETCH_AUTHORS = 
-			"SELECT DISTINCT * FROM author a " +
-			"LEFT JOIN book_author ba ON ba.author_id = a.id " +
-			"LEFT JOIN book b ON ba.book_id = b.id WHERE b.id = @id";
+		public const string FETCH_BOOKS =
+			"SELECT DISTINCT b.id, b.title, b.section, b.description, b.rating FROM book b " +
+			"LEFT JOIN book_author ba ON ba.book_id = b.id " +
+			"LEFT JOIN author a ON ba.author_id = a.id WHERE a.id = @id";
 
 		public const string INSERT =
 				"INSERT INTO book (title, section, description, rating) VALUES (@title, @section, @description, @rating)";
