@@ -4,8 +4,6 @@
     "\\Database",
     "\\Database\\BookService",
     "\\Database\\BookService\\DatabaseAccess",
-    "\\Database\\BookService\\Proxies",
-    "\\Database\\BookService\\Queries",
     "\\Database\\BookService\\Utils",
     "\\Database\\Properties"
   ],

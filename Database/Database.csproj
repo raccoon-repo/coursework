@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{1E955833-C302-4B6E-BEBD-CB56D2BB8581}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Database</RootNamespace>
+    <RootNamespace>BookService</RootNamespace>
     <AssemblyName>Database</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -50,22 +50,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BookService\Author.cs" />
-    <Compile Include="BookService\Book.cs" />
-    <Compile Include="BookService\BookSection.cs" />
     <Compile Include="BookService\DatabaseAccess\Impl\AuthorDao.cs" />
     <Compile Include="BookService\DatabaseAccess\Impl\BookDao.cs" />
     <Compile Include="BookService\DatabaseAccess\DBWorker.cs" />
     <Compile Include="BookService\DatabaseAccess\IAuthorDao.cs" />
     <Compile Include="BookService\DatabaseAccess\IBookDao.cs" />
     <Compile Include="BookService\Utils\Utils.cs" />
-    <Compile Include="BookService\DatabaseAccess\SaveOption.cs" />
-    <Compile Include="BookService\Proxies\AuthorProxy.cs" />
-    <Compile Include="BookService\Proxies\BookProxy.cs" />
-    <Compile Include="BookService\Queries\Authors.cs" />
-    <Compile Include="BookService\Queries\Books.cs" />
-    <Compile Include="BookService\Queries\JoinTable.cs" />
     <Compile Include="BookService\Utils\BookUtils.cs" />
+    <Compile Include="BookService\DatabaseAccess\SaveOption.cs" />
+    <Compile Include="BookService\Entities\Proxies\AuthorProxy.cs" />
+    <Compile Include="BookService\Entities\Proxies\BookProxy.cs" />
+    <Compile Include="BookService\Entities\Book.cs" />
+    <Compile Include="BookService\Entities\Author.cs" />
+    <Compile Include="BookService\Entities\BookSection.cs" />
+    <Compile Include="BookService\DatabaseAccess\Queries\JoinTable.cs" />
+    <Compile Include="BookService\DatabaseAccess\Queries\Authors.cs" />
+    <Compile Include="BookService\DatabaseAccess\Queries\Books.cs" />
+    <Compile Include="BookService\Service\Impl\AuthorService.cs" />
+    <Compile Include="BookService\Service\Impl\BookService.cs" />
+    <Compile Include="BookService\Service\IAuthorService.cs" />
+    <Compile Include="BookService\Service\IBookService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
