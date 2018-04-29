@@ -1,8 +1,11 @@
 {
   "ExpandedNodes": [
     "",
-    "\\BookLibrary"
+    "\\BookLibrary",
+    "\\BookLibrary\\BookLibrary",
+    "\\DaoTest",
+    "\\DatabaseImpl"
   ],
-  "SelectedNode": "\\BookLibrary.sln",
+  "SelectedNode": "\\DaoTest\\DaoTest.csproj",
   "PreviewInSolutionExplorer": false
 }
