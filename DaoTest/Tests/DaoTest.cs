@@ -1,24 +1,24 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BookService.Entities;
-using BookService.DatabaseAccess;
-using BookService.Entities.Proxies;
+using BookLibrary.Entities;
+using BookLibrary.Database.Impl.Dao;
+using BookLibrary.Core.Dao;
+using BookLibrary.Entities.Proxies;
 using System.Collections.Generic;
-using BookService.DatabaseAccess.Impl;
+using BookLibrary.Database;
 
 namespace DaoTest
 {
-	[TestClass]
-	public class DaoTest
-	{
-		public static IBookDao bookDao = BookDao.Instance;
-		public static IAuthorDao authorDao = AuthorDao.Instance;
+    [TestClass]
+    public class DaoTest
+    {
+        public static DBWorker dBWorker = new DBWorker(DBWorker.TEST_CON_STRING);
+        public static IBookDao bookDao = new BookDao(dBWorker);
+        public static IAuthorDao authorDao = new AuthorDao(dBWorker);
 
 		[TestMethod]
 		public void Test_BookDao ()
 		{
-			DBWorker.SetConfigurationFor("test");
 			Init_Data();
 			Stopwatch nonCachedInstanceFetch = new Stopwatch();
 			Stopwatch cachedInstanceFetch = new Stopwatch();
@@ -32,7 +32,7 @@ namespace DaoTest
 			Book cachedBookInstance = bookDao.FindById(1);
 			cachedInstanceFetch.Stop();
 
-			Assert.IsTrue(cachedInstanceFetch.ElapsedMilliseconds < nonCachedInstanceFetch.ElapsedMilliseconds);
+			Assert.IsTrue(cachedInstanceFetch.ElapsedTicks < nonCachedInstanceFetch.ElapsedTicks);
 			/* ***************************** */
 
 
@@ -83,6 +83,10 @@ namespace DaoTest
 
 		public void Init_Data()
 		{
+            ( (BookDao)bookDao ).AuthorDao = authorDao;
+            ( (AuthorDao)authorDao ).BookDao = bookDao;
+
+
 			Book b1 = new Book() {
 				Title = "Fast Recipes",
 				Rating = 7.8f,

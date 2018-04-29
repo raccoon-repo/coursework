@@ -1,24 +1,24 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using BookService.DatabaseAccess;
-using BookService.DatabaseAccess.Impl;
-using BookService.Entities;
-using BookService.Entities.Proxies;
+using BookLibrary.Database;
+using BookLibrary.Database.Impl.Dao;
+using BookLibrary.Entities;
+using BookLibrary.Entities.Proxies;
+using BookLibrary.Core.Dao;
 
 namespace DaoTest
 {
 	[TestClass]
 	public class ProxyTest
 	{
-
-		private static IBookDao bookDao = BookDao.Instance;
-		private static IAuthorDao authorDao = AuthorDao.Instance;
+        private static DBWorker dBWorker = new DBWorker(DBWorker.TEST_CON_STRING);
+		private static IBookDao bookDao = new BookDao(dBWorker);
+		private static IAuthorDao authorDao = new AuthorDao(dBWorker);
 
 		[TestMethod]
 		public void Test_Lazy_Initialization()
 		{
-			DBWorker.SetConfigurationFor("test");
 
 			Book book = bookDao.FindById(1);
 			Author author = authorDao.FindById(1);

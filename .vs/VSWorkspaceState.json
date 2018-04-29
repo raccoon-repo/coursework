@@ -1,11 +1,8 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Database",
-    "\\Database\\BookService",
-    "\\Database\\BookService\\DatabaseAccess",
-    "\\Database\\BookService\\Utils",
-    "\\Database\\Properties"
+    "\\BookLibrary"
   ],
+  "SelectedNode": "\\BookLibrary.sln",
   "PreviewInSolutionExplorer": false
 }
