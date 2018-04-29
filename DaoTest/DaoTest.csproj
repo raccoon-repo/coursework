@@ -56,9 +56,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Database\BookLibrary.csproj">
+    <ProjectReference Include="..\BookLibrary\BookLibrary.csproj">
       <Project>{1e955833-c302-4b6e-bebd-cb56d2bb8581}</Project>
       <Name>BookLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DatabaseImpl\DatabaseImpl.csproj">
+      <Project>{0b774b4b-ec70-4e4a-bbb5-77dd434d529e}</Project>
+      <Name>DatabaseImpl</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
