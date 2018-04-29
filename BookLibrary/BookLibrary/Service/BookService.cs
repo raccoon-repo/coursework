@@ -3,61 +3,61 @@ using BookLibrary.Core.Dao;
 using BookLibrary.Core.Service;
 using BookLibrary.Entities;
 
-namespace BookLibrary.Database.Impl
+namespace BookLibrary.Service
 {
 	public class BookService : IBookService
 	{
-		private IBookDao bookDao;
+		private IBookDao _bookDao;
 
         public IBookDao BookDao
         {
-            get { return bookDao; }
-            set { bookDao = value; }
+            get => _bookDao;
+	        set => _bookDao = value;
         }
 
 		public void Delete(Book book)
 		{
-			bookDao.Delete(book);
+			_bookDao.Delete(book);
 		}
 
 		public IList<Book> FindAll()
 		{
-			return bookDao.FindAll();
+			return _bookDao.FindAll();
 		}
 
 		public Book FindById(int id)
 		{
-			return bookDao.FindById(id);
+			return _bookDao.FindById(id);
 		}
 
 		public IList<Book> FindByRating(float rating)
 		{
-			return bookDao.FindByRating(rating);
+			return _bookDao.FindByRating(rating);
 		}
 
 		public IList<Book> FindByRating(float from, float to)
 		{
-			return bookDao.FindByRating(from, to);
+			return _bookDao.FindByRating(from, to);
 		}
 
 		public IList<Book> FindBySection(BookSection section)
 		{
-			return bookDao.FindBySection(section);
+			return _bookDao.FindBySection(section);
 		}
 
 		public IList<Book> FindByTitle(string title)
 		{
-			return bookDao.FindByTitle(title);
+			return _bookDao.FindByTitle(title);
 		}
 
 		public void Refresh(Book book)
 		{
-			bookDao.Refresh(book);
+			_bookDao.Refresh(book);
 		}
 
 		public void SaveOrUpdate(Book book)
 		{
-			bookDao.Save(book, SaveOption.UPDATE_IF_EXIST);
+			_bookDao.Save(book, SaveOption.UPDATE_IF_EXIST);
 		}
 	}
 }

@@ -8,8 +8,7 @@ namespace BookLibrary.Utils
 		public static BookSection ParseSection(string section)
 		{
 			section = section.ToUpper().Trim();
-			BookSection bs;
-			bool parsingResult = Enum.TryParse(section, out bs);
+			bool parsingResult = Enum.TryParse(section, out BookSection bs);
 
 			if (!parsingResult) {
 				bs = BookSection.OTHER;

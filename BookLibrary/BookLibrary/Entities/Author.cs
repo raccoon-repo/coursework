@@ -4,49 +4,45 @@ namespace BookLibrary.Entities
 {
 	public class Author
 	{
-		private int id = 0;
-		private string firstName = "";
-		private string lastName = "";
-		private ISet<Book> books = new HashSet<Book>();
+		private int _id = 0;
+		private string _firstName = "";
+		private string _lastName = "";
+		private ISet<Book> _books = new HashSet<Book>();
 
 		public Author() { }
 		public Author(string firstName, string lastName)
         {
-			this.firstName = firstName;
-            this.lastName = lastName;
+			_firstName = firstName;
+            _lastName = lastName;
 		}
 
 		public int Id
         {
-			get { return id; }
-			set { id = value; }
+			get => _id;
+			set => _id = value;
 		}
 
 		public string FirstName
         {
-			get { return firstName; }
-			set { firstName = value; }
+			get => _firstName;
+			set => _firstName = value;
 		}
 
 		public string LastName
         {
-			get { return lastName; }
-			set { lastName = value;  }
+			get => _lastName;
+			set => _lastName = value;
 		}
 		public virtual ISet<Book> Books
 		{
-			get {
-				return books;
-			}
-			set {
-				books = value;
-			}
+			get => _books;
+			set => _books = value;
 		}
 
 
 		public virtual void AddBook(Book book)
 		{
-			books.Add(book);
+			_books.Add(book);
 
 			if (!book.Authors.Contains(this))
             {
@@ -56,9 +52,10 @@ namespace BookLibrary.Entities
 
 		public virtual void RemoveBook(Book book)
 		{
-			books.Remove(book);
+			_books.Remove(book);
 
-			if(book.Authors.Contains(this)) {
+			if(book.Authors.Contains(this)) 
+			{
 				book.AddAuthor(this);
 			}
 		}
@@ -67,7 +64,7 @@ namespace BookLibrary.Entities
 		{
 			if (obj is Author author)
             {
-				return id == author.id && firstName.Equals(author.firstName) && lastName.Equals(author.LastName);
+				return _id == author._id && _firstName.Equals(author._firstName) && _lastName.Equals(author.LastName);
 			}
 
 			return false;
@@ -75,7 +72,7 @@ namespace BookLibrary.Entities
 
 		public override int GetHashCode()
 		{
-			return id.GetHashCode();
+			return _id.GetHashCode();
 		}
 	}
 }

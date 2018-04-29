@@ -4,52 +4,58 @@ namespace BookLibrary.Entities
 {
 	public class Book
 	{
-		private int id = 0;
+		private int _id = 0;
 
-		private string title;
-		private ISet<Author> authors = new HashSet<Author>();
-		private BookSection section;
-		private string description;
-		private float rating = 0.0f;
+		private string _title;
+		private ISet<Author> _authors = new HashSet<Author>();
+		private BookSection _section;
+		private string _description;
+		private float _rating = 0.0f;
 
 		public Book() { }
 		public Book(string title)
         {
-			this.title = title;
+			this._title = title;
 		}
 
 		public int Id
         {
-			get { return id; }
-			set { id = value; }
+			get => _id;
+			set => _id = value;
 		}
 
 		public string Title {
-			get { return title; }
-			set { title = value; }
+			get => _title;
+			set => _title = value;
 		}
 
 		public BookSection Section
         {
-			get { return section; }
-			set { section = value; }
+			get => _section;
+			set => _section = value;
 		}
 
 		public string Description
         {
-			get { return description; }
-			set { description = value; }
+			get => _description;
+			set => _description = value;
+		}
+
+		public float Rating 
+		{
+			get => _rating;
+			set => _rating = value;
 		}
 
 		public virtual ISet<Author> Authors
         {
-			get { return authors; }
-			set { authors = value; }
+			get => _authors;
+			set => _authors = value;
 		}
 
 		public virtual void AddAuthor(Author author)
 		{
-			authors.Add(author);
+			_authors.Add(author);
 			if (!author.Books.Contains(this))
             {
 				author.AddBook(this);
@@ -58,23 +64,18 @@ namespace BookLibrary.Entities
 
 		public virtual void RemoveAuthor(Author author)
 		{
-			authors.Remove(author);
+			_authors.Remove(author);
 			if(author.Books.Contains(this))
             {
 				author.RemoveBook(this);
 			}
 		}
 
-		public float Rating {
-			get { return rating; }
-			set { rating = value; }
-		}
-
 		public override bool Equals(object obj)
 		{
 			if (obj is Book book)
             {
-				return this.id == book.id && title.Equals(book.title);
+				return this._id == book._id && _title.Equals(book._title);
 			}
 
 			return false;
@@ -82,7 +83,7 @@ namespace BookLibrary.Entities
 
 		public override int GetHashCode()
 		{
-			return id.GetHashCode();
+			return _id.GetHashCode();
 		}
 	}
 }

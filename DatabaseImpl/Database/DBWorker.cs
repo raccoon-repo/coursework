@@ -29,12 +29,12 @@ namespace BookLibrary.Database
 
 		public DataSet ExecuteQuery(string sqlStatement, IDictionary<string, string> args)
 		{
-			DataSet dataSet = new DataSet();
+			var dataSet = new DataSet();
 
-			using (MySqlConnection connection = new MySqlConnection(connectionString))
+			using (var connection = new MySqlConnection(connectionString))
 			{
 				connection.Open();
-				MySqlDataAdapter dataAdapter = new MySqlDataAdapter(sqlStatement, connection);
+				var dataAdapter = new MySqlDataAdapter(sqlStatement, connection);
 
 				SetParameters(dataAdapter.SelectCommand, args);
 
@@ -73,10 +73,10 @@ namespace BookLibrary.Database
 		{
 			int lastId;
 
-			using (MySqlConnection connection = new MySqlConnection(connectionString)) 
+			using (var connection = new MySqlConnection(connectionString)) 
 			{
-				MySqlCommand cmd = new MySqlCommand(sqlStatement, connection);
-				MySqlCommand cmd1 = new MySqlCommand("SELECT LAST_INSERT_ID()", connection);
+				var cmd = new MySqlCommand(sqlStatement, connection);
+				var cmd1 = new MySqlCommand("SELECT LAST_INSERT_ID()", connection);
 
 				SetParameters(cmd, args);
 				
@@ -84,7 +84,7 @@ namespace BookLibrary.Database
 				connection.Open();
 				try {
 					cmd.ExecuteNonQuery();
-					lastId = Int32.Parse(cmd1.ExecuteScalar().ToString());
+					lastId = int.Parse(cmd1.ExecuteScalar().ToString());
 				} finally {
 					connection.Close();
 				}
@@ -100,9 +100,9 @@ namespace BookLibrary.Database
 		{
 			object scalarValue = null;
 
-			using (MySqlConnection connection = new MySqlConnection(connectionString)) 
+			using (var connection = new MySqlConnection(connectionString)) 
 			{
-				MySqlCommand cmd = new MySqlCommand(sqlStatement, connection);
+				var cmd = new MySqlCommand(sqlStatement, connection);
 				SetParameters(cmd, args);
 
 				connection.Open();
@@ -121,7 +121,7 @@ namespace BookLibrary.Database
 		private void SetParameters(MySqlCommand command, IDictionary<string, string> args)
 		{
 			if (args != null && args.Count != 0) {
-				foreach (KeyValuePair<string, string> arg in args) {
+				foreach (var arg in args) {
 					command.Parameters.AddWithValue(arg.Key, arg.Value);
 				}
 			}
