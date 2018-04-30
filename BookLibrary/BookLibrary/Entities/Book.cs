@@ -13,9 +13,19 @@ namespace BookLibrary.Entities
 		private float _rating = 0.0f;
 
 		public Book() { }
+		
 		public Book(string title)
         {
 			this._title = title;
+		}
+
+		public Book(int id, string title, float rating, BookSection section, string description)
+		{
+			_id = id;
+			_title = title;
+			_rating = rating;
+			_section = section;
+			_description = description;
 		}
 
 		public int Id

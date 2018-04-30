@@ -1,25 +1,28 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using BookLibrary.Core.Dao;
 using MySql.Data.MySqlClient;
 
 namespace BookLibrary.Database
 {
 	public class DBWorker
 	{
-        private string connectionString;
+        private readonly string _connectionString;
 
         public const string DEFAULT_CON_STRING =
-            "server=localhost;user=books;database=book_service;port=3306;password=books";
+            "server=localhost;user=books;database=book_service;port=3306;password=books;SslMode=none";
         public const string TEST_CON_STRING =
-            "server=localhost;user=books;database=test_book_service;port=3306;password=books";
+            "server=localhost;user=books;database=test_book_service;port=3306;password=books;SslMode=none";
 
+		public string ConnectionString => _connectionString;
 
-        public DBWorker(string connectionString)
+		public DBWorker(string connectionString)
         {
             if (connectionString != null)
             {
-                this.connectionString = connectionString;
+                this._connectionString = connectionString;
             }
             else
             {
@@ -31,7 +34,7 @@ namespace BookLibrary.Database
 		{
 			var dataSet = new DataSet();
 
-			using (var connection = new MySqlConnection(connectionString))
+			using (var connection = new MySqlConnection(_connectionString))
 			{
 				connection.Open();
 				var dataAdapter = new MySqlDataAdapter(sqlStatement, connection);
@@ -51,7 +54,7 @@ namespace BookLibrary.Database
 
 		public void ExecuteNonQuery(string sqlStatement, IDictionary<string, string> args)
 		{
-			using (MySqlConnection connection = new MySqlConnection(connectionString))
+			using (MySqlConnection connection = new MySqlConnection(_connectionString))
 			{
 				MySqlCommand cmd = new MySqlCommand(sqlStatement, connection);
 
@@ -73,7 +76,7 @@ namespace BookLibrary.Database
 		{
 			int lastId;
 
-			using (var connection = new MySqlConnection(connectionString)) 
+			using (var connection = new MySqlConnection(_connectionString)) 
 			{
 				var cmd = new MySqlCommand(sqlStatement, connection);
 				var cmd1 = new MySqlCommand("SELECT LAST_INSERT_ID()", connection);
@@ -100,7 +103,7 @@ namespace BookLibrary.Database
 		{
 			object scalarValue = null;
 
-			using (var connection = new MySqlConnection(connectionString)) 
+			using (var connection = new MySqlConnection(_connectionString)) 
 			{
 				var cmd = new MySqlCommand(sqlStatement, connection);
 				SetParameters(cmd, args);

@@ -5,62 +5,67 @@ namespace BookLibrary.Entities.Proxies
 {
 	public class AuthorProxy : Author
 	{
-		private bool booksAreFetchedOrSet = false;
-        private IBookDao bookDao;
+		private bool _booksAreFetchedOrSet = false;
+        private IBookDao _bookDao;
+
+		private string _oldFirstName;
+		private string _oldLastName;
 
 		public AuthorProxy(Author author)
 		{
 			FirstName = author.FirstName;
 			LastName = author.LastName;
 
-			if(author is AuthorProxy proxy && proxy.booksAreFetchedOrSet)
+			_oldFirstName = FirstName;
+			_oldLastName = LastName;
+
+			if(author is AuthorProxy proxy && proxy._booksAreFetchedOrSet)
             {
 				base.Books = proxy.Books;
-				booksAreFetchedOrSet = true;
+				_booksAreFetchedOrSet = true;
 			}
             else if (!(author is AuthorProxy) && author.Books.Count != 0)
             {
 				base.Books = author.Books;
-				booksAreFetchedOrSet = true;
+				_booksAreFetchedOrSet = true;
 			}
 		}
+		
+		public AuthorProxy(int id, string firstName, string lastname) 
+			: base(id, firstName, lastname) { }
 
         public AuthorProxy() { }
 
         public IBookDao BookDao
         {
-            get { return bookDao; }
-            set { bookDao = value; }
+            get => _bookDao;
+	        set => _bookDao = value;
         }
 
-		public bool BooksAreFetchedOrSet {
-			get { return booksAreFetchedOrSet; }
-			private set { }
-		}
+		public bool BooksAreFetchedOrSet => _booksAreFetchedOrSet;
 
 		public override ISet<Book> Books {
 			get {
-				if(!booksAreFetchedOrSet) {
+				if(!_booksAreFetchedOrSet) 
+				{
 					FetchBooks();
 				}
 
 				return base.Books;
 			}
-			set {
-				base.Books = Books;
-			}
+			set => base.Books = value;
 		}
 
 		private void FetchBooks()
 		{
-			booksAreFetchedOrSet = true;
+			_booksAreFetchedOrSet = true;
 			base.Books = new HashSet<Book>(
-				bookDao.FindByAuthor(this));
+				_bookDao.FindByAuthor(this));
 		}
 
 		public override void AddBook(Book book)
 		{
-			if(!booksAreFetchedOrSet)
+			if(!_booksAreFetchedOrSet)
             {
 				FetchBooks();
 			}
@@ -86,6 +91,22 @@ namespace BookLibrary.Entities.Proxies
 			return false;
 		}
 
+		public AuthorProxy Refresh()
+		{
+			FirstName = _oldFirstName;
+			LastName = _oldLastName;
+
+			return this;
+		}
+
+		public AuthorProxy Update()
+		{
+			_oldFirstName = FirstName;
+			_oldLastName = LastName;
+
+			return this;
+		}
+		
 		public override int GetHashCode()
 		{
 			return base.GetHashCode();

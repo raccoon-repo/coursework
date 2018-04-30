@@ -20,8 +20,14 @@ namespace BookLibrary.Database.Impl.Dao
 
 		public BookDao(DBWorker dBWorker)
 		{
-			_dBWorker = dBWorker ?? new DBWorker(DBWorker.DEFAULT_CON_STRING);
+			if (dBWorker == null)
+				throw new ArgumentException("dBWorker cannot be null");
+
+			_dBWorker = dBWorker;
+			_authorDao = DaoCache.GetAuthorDao(_dBWorker.ConnectionString);
 		}
+		
+		public BookDao() { }
 
         public IAuthorDao AuthorDao
         {
@@ -117,23 +123,39 @@ namespace BookLibrary.Database.Impl.Dao
 		}
 
 		public Book Refresh(Book book)
-		{
+		{	
 			// check first if book is already cached
-			if (cache.TryGetValue(book.Id, out var temp)) 
+			if (cache.TryGetValue(book.Id, out var temp))
 			{
-				book.Title		 = temp.Title;
-				book.Section	 = temp.Section;
-				book.Description = temp.Description;
+				var proxy = (BookProxy) temp;
 
-				return book;
+				// refresh the state of proxy to its initial state
+				// because it might have been changed
+				proxy.Refresh();
+				
+				// intended comparison by reference
+				// if the book is a reference to the proxy instance
+				// then return the proxy
+				if (proxy == book)
+					return proxy;
+				
+			
+				// else update the book instance and return its proxy
+			
+				book.Title		 = proxy.Title;
+				book.Section	 = proxy.Section;
+				book.Description = proxy.Description;
+
+				return proxy;
 			} 
 			else // if not - query data from database
 			{
 				var args = new Dictionary<string, string> {
 					{ "@id", book.Id.ToString() }
 				};
-
+				
 				DataSet resultSet = _dBWorker.ExecuteQuery(Books.FIND_BY_ID, args);
+				
 				temp = ParseBook(resultSet.Tables[0].Rows[0].ItemArray);
 
 				book.Title = temp.Title;
@@ -212,13 +234,17 @@ namespace BookLibrary.Database.Impl.Dao
 
 			_dBWorker.ExecuteNonQuery(Books.UPDATE, args);
 
-			if (book is BookProxy) 
+			if (book is BookProxy proxy)
 			{
-				cache.AddOrUpdate(book.Id, book, (a, b) => book);
+				
+				// no need to update cache
+				// because we may have only one proxy
+				// with the same identity at a time 
+				proxy.Update();
 			} 
 			else 
 			{
-                BookProxy proxy = new BookProxy(book) {
+                proxy = new BookProxy(book) {
                     AuthorDao = _authorDao
                 };
                 cache.AddOrUpdate(book.Id, proxy, (a, b) => proxy);
@@ -260,6 +286,28 @@ namespace BookLibrary.Database.Impl.Dao
 			}
 		}
 
+		public void Delete(Book book)
+		{
+			if (book is BookProxy) {
+
+				var args = new Dictionary<string, string> {
+					{ "@id", book.Id.ToString() }
+				};
+
+				// Delete from book table
+				_dBWorker.ExecuteNonQuery(Books.DELETE, args);
+
+				// Delete all rows in the intermediate table
+				// that have book_id column value equals to @id
+				_dBWorker.ExecuteNonQuery(JoinTable.DELETE_BY_BOOK, args);
+
+				// Remove it from cache
+				cache.TryRemove(book.Id, out _);
+			}
+		}
+
+		/* ----- ---------------------------------------------------------------------- ----- */
+
 		public IList<Book> FindByRating(float from, float to)
 		{
 
@@ -296,32 +344,6 @@ namespace BookLibrary.Database.Impl.Dao
 			return null;
 		}
 
-
-
-		public void Delete(Book book)
-		{
-
-			if (book is BookProxy) {
-
-				var args = new Dictionary<string, string> {
-					{ "@id", book.Id.ToString() }
-				};
-
-				// Delete from book table
-				_dBWorker.ExecuteNonQuery(Books.DELETE, args);
-
-				// Delete all rows in the intermediate table
-				// that have book_id column value equals to @id
-				_dBWorker.ExecuteNonQuery(JoinTable.DELETE_BY_BOOK, args);
-
-				// Remove it from cache
-				cache.TryRemove(book.Id, out _);
-			}
-		}
-
-		/* ----- ---------------------------------------------------------------------- ----- */
-
-
 		private IList<Book> ParseBooks(DataTable table)
 		{
 			IList<Book> books = new List<Book>();
@@ -336,12 +358,17 @@ namespace BookLibrary.Database.Impl.Dao
 
 		private BookProxy ParseBook(object[] row)
 		{
-            BookProxy book = new BookProxy() {
-                Id = int.Parse(row[0].ToString()),
-                Title = (string)row[1],
-                Section = BookUtils.ParseSection(row[2].ToString()),
-                Description = row[3].ToString(),
-                Rating = float.Parse(row[4].ToString()),
+
+			var id = int.Parse(row[0].ToString());
+			var title = (string) row[1];
+			var section = BookUtils.ParseSection(row[2].ToString());
+			var description = row[3].ToString();
+			var rating = float.Parse(row[4].ToString());
+
+			BookProxy book = new BookProxy (id, section: section,
+					title: title, description: description, 
+				 	rating: rating) 
+			{
                 AuthorDao = _authorDao
 			};
 
@@ -351,8 +378,8 @@ namespace BookLibrary.Database.Impl.Dao
 
 		private int GetCount(string sqlStatement, IDictionary<string, string> args)
 		{
-			object oCount = _dBWorker.ExecuteScalar(sqlStatement, args);
-			return int.Parse(oCount.ToString());
+			var count = _dBWorker.ExecuteScalar(sqlStatement, args);
+			return int.Parse(count.ToString());
 		}
 
 		private ISet<int> GetAuthorsId(Book book)

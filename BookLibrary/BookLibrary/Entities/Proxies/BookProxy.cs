@@ -1,14 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.Contracts;
+using System.Security;
+using System.Security.Cryptography;
 using BookLibrary.Core.Dao;
 
 namespace BookLibrary.Entities.Proxies
 {
 	public class BookProxy : Book
 	{
-		private bool authorsAreFetchedOrSet = false;
-        private IAuthorDao authorDao;
+		private bool _authorsAreFetchedOrSet = false;
+        
+		private IAuthorDao _authorDao;
 
-
+		private string _oldTitle;
+		private float _oldRating;
+		private BookSection _oldSection;
+		private string _oldDescription;
+		
         public BookProxy(Book book)
 		{
 			Id			= book.Id;
@@ -17,51 +26,84 @@ namespace BookLibrary.Entities.Proxies
 			Section		= book.Section;
 			Description = book.Description;
 
-			if(book is BookProxy proxy && proxy.authorsAreFetchedOrSet)
+			_oldTitle 		= Title;
+			_oldRating 		= Rating;
+			_oldDescription = Description;
+			_oldSection 	= Section;
+			
+			if(book is BookProxy proxy && proxy._authorsAreFetchedOrSet)
             {
 				base.Authors = proxy.Authors;
-				authorsAreFetchedOrSet = true;
+				_authorsAreFetchedOrSet = true;
 			}
             else if (!(book is BookProxy) && book.Authors.Count != 0)
             {
 				base.Authors = book.Authors;
-				authorsAreFetchedOrSet = true;
+				_authorsAreFetchedOrSet = true;
 			}
+		}
+
+		public BookProxy(int id, string title, float rating, BookSection section, string description)
+		: base(id, title, rating, section, description)
+		{
+			_oldTitle = title;
+			_oldRating = rating;
+			_oldDescription = description;
+			_oldSection = section;
 		}
 
         public BookProxy() { }
 
         public IAuthorDao AuthorDao
         {
-            get { return authorDao; }
-            set { authorDao = value; }
-        }
+            get => _authorDao;
+	        set => _authorDao = value;
+        }		
 
 		public override ISet<Author> Authors
 		{
-			get {
-				if(!authorsAreFetchedOrSet)
+			get 
+			{
+				if(!_authorsAreFetchedOrSet)
                 {
 					FetchAuthors();
 				}
 
 				return base.Authors;
 			}
-			set { base.Authors = value; }
-			
+			set => base.Authors = value;
 		}
 
-		public void FetchAuthors()
+		public BookProxy Refresh()
 		{
-			authorsAreFetchedOrSet = true;
-			base.Authors = new HashSet<Author>(
-				authorDao.FindByBook(this));
+			Title 		= _oldTitle;
+			Rating 		= _oldRating;
+			Section 	= _oldSection;
+			Description = _oldDescription;
 
+			return this;
 		}
 
-		public bool AuthorsAreFetchedOrSet {
-			get { return authorsAreFetchedOrSet; }
-			private set { }
+		public BookProxy Update()
+		{
+			_oldTitle 		= Title;
+			_oldRating 		= Rating;
+			_oldSection 	= Section;
+			_oldDescription = Description;
+
+			return this;
+		}
+
+		private void FetchAuthors()
+		{
+			_authorsAreFetchedOrSet = true;
+			base.Authors = new HashSet<Author>(
+				_authorDao.FindByBook(this));
+		}
+
+		public bool AuthorsAreFetchedOrSet 
+		{
+			get => _authorsAreFetchedOrSet;
 		}
 
 		public override bool Equals(object obj)

@@ -16,6 +16,13 @@ namespace BookLibrary.Entities
             _lastName = lastName;
 		}
 
+		public Author(int id, string firstName, string lastName)
+		{
+			_id = id;
+			_lastName = lastName;
+			_firstName = firstName;
+		}
+
 		public int Id
         {
 			get => _id;
