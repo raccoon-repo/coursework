@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using BookLibrary.Core.Dao;
 using BookLibrary.Entities;
 using NUnit.Framework;
 
@@ -79,8 +80,11 @@ namespace NUnit_XmlDaoTest.Tests
         {
             var path = _projectDir + "/Resources";
 
-            var bookDao = DaoFactory.GetBookDaoFor(path + "/books.xml", path + "/authors.xml");
-            var authorDao = DaoFactory.GetAuthorDaoFor(path + "/authors.xml", path + "/books.xml");
+            var dhb = new DocumentHolder(path + "/books.xml");
+            var dha = new DocumentHolder(path + "/authors.xml");
+            
+            var bookDao = DaoFactory.GetBookDaoFor(dhb, dha);
+            var authorDao = DaoFactory.GetAuthorDaoFor(dha, dhb);
 
             Assert.NotNull(bookDao.AuthorDao);
             Assert.NotNull(authorDao.BookDao);
@@ -111,7 +115,37 @@ namespace NUnit_XmlDaoTest.Tests
             Assert.AreEqual(7.2f, book.Rating);
             Assert.IsNull(book.Description);
         }
-        
+
+
+        [Test]
+        public void Should_Save_Book_Without_Authors()
+        {
+            var booksXml = _projectDir + "/Resources/SaveTest/book/books.xml";
+            var booksMetaInf = _projectDir + "/Resources/SaveTest/book/books-meta-inf.xml";
+
+            var authorsXml = _projectDir + "/Resources/SaveTest/author/authors.xml";
+            var authorsMetaInf = _projectDir + "/Resources/SaveTest/author/authors-meta-inf.xml";
+            
+            var bookDh = new DocumentHolder(booksXml, booksMetaInf);
+            var authorDh = new DocumentHolder(authorsXml, authorsMetaInf);
+
+            IBookDao bookDao = DaoFactory.GetBookDaoFor(bookDh, authorDh);
+
+            var book = new Book() {
+                Id = 22,
+                Title = "Help me please",
+                Description = "aaaaa",
+                Rating = 10.0f
+            };
+            
+            bookDao.Save(book, SaveOption.SAVE_ONLY);
+
+            var book1 = bookDao.FindById(1);
+            
+            Assert.AreEqual(book.Title, book1.Title);
+            Assert.AreEqual(book.Description, book1.Description);
+            Assert.AreEqual(book.Rating, book1.Rating);
+        }
 
         [SetUp]
         public void Init()

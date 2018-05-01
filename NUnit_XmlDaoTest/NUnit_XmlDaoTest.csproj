@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\DaoTest.cs" />
+    <Compile Include="Tests\DocumentHolderTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BookLibrary\BookLibrary.csproj">
@@ -58,7 +59,13 @@
   <ItemGroup>
     <Content Include="Resources\authors.xml" />
     <Content Include="Resources\books.xml" />
+    <Content Include="Resources\DHTest\data.xml" />
+    <Content Include="Resources\DHTest\.meta-inf.xml" />
     <Content Include="Resources\sample.xml" />
+    <Content Include="Resources\SaveTest\author\authors-meta-inf.xml" />
+    <Content Include="Resources\SaveTest\author\authors.xml" />
+    <Content Include="Resources\SaveTest\book\books-meta-inf.xml" />
+    <Content Include="Resources\SaveTest\book\books.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

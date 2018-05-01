@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using System.Xml;
+using System.Xml.Linq;
 using BookLibrary.Core.Dao;
 using BookLibrary.Entities;
 using BookLibrary.Entities.Proxies;
@@ -120,12 +121,93 @@ namespace BookLibrary.Xml.Impl.Dao
 
         public void Save(Book book, SaveOption option)
         {
-            throw new System.NotImplementedException();
+            Save(book, option, new HashSet<int>(), new HashSet<int>());
         }
 
         public void Save(Book book, SaveOption option, ISet<int> savedAuthors, ISet<int> savedBooks)
         {
-            throw new System.NotImplementedException();
+            if (book.Id <= 0)
+                return;
+            
+            if (BookIsPresent(book))
+            {
+                switch (option)
+                {
+                    case SaveOption.SAVE_ONLY:
+                        return;
+                    case SaveOption.UPDATE_IF_EXIST:
+                        Update(book, savedAuthors, savedBooks);
+                        return;
+                }
+            }
+
+            
+           
+            //Implementation of AUTO_INCREMENT
+            _documentHolder.IncrementLastId();
+            var id = _documentHolder.GetLastInsertedId();
+            book.Id = id;
+            
+            var bRating = Utils.Utils.FloatToString(book.Rating);
+            
+            var xDoc = DocumentHolder.Document;
+            var root = xDoc.DocumentElement;
+            
+            //book
+            var bookNode = xDoc.CreateElement("book");
+            var idAttr = xDoc.CreateAttribute("id");
+            idAttr.Value = book.Id.ToString();
+            
+            //title
+            var titleNode = xDoc.CreateElement("title");
+            titleNode.AppendChild(xDoc.CreateTextNode(book.Title));
+
+            //description
+            var descriptionNode = xDoc.CreateElement("description");
+            descriptionNode.AppendChild(xDoc.CreateTextNode(book.Description));
+
+            //rating
+            var ratingNode = xDoc.CreateElement("rating");
+            ratingNode.AppendChild(xDoc.CreateTextNode(bRating));
+
+            //section
+            var sectionNode = xDoc.CreateElement("section");
+            sectionNode.AppendChild(xDoc.CreateTextNode(book.Section.ToString()));
+
+            //authors
+            var authorsNode = xDoc.CreateElement("authors");
+
+            bookNode.Attributes.Append(idAttr);
+            bookNode.AppendChild(sectionNode);
+            bookNode.AppendChild(titleNode);
+            bookNode.AppendChild(descriptionNode);
+            bookNode.AppendChild(ratingNode);
+            bookNode.AppendChild(authorsNode);
+
+            root.AppendChild(bookNode);
+            savedBooks.Add(book.Id);
+
+            if (book is BookProxy p && !p.AuthorsAreFetchedOrSet)
+                return;
+
+            foreach (var author in book.Authors)
+            {
+                if (!savedAuthors.Contains(author.Id))
+                {
+                    _authorDao.Save(author, option,
+                        savedAuthors, savedBooks);
+                }
+
+                var idNode = xDoc.CreateElement("id");
+                idNode.AppendChild(xDoc.CreateTextNode(author.Id.ToString()));
+                authorsNode.AppendChild(idNode);
+            }
+
+            cache.TryAdd(book.Id, new BookProxy(book) {
+                AuthorDao = _authorDao
+            });
+            
+            xDoc.Save(_documentHolder.Path);
         }
 
         public void Update(Book book)
