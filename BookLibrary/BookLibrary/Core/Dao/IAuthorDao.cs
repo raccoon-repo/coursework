@@ -20,7 +20,7 @@ namespace BookLibrary.Core.Dao
 
 		void Save(Author author, SaveOption option);
 		void Save(Author author, SaveOption option, 
-				  ISet<int> savedAuthor, ISet<int> savedBooks);
+				  ISet<int> savedAuthors, ISet<int> savedBooks);
 		void Update(Author author);
 		void Update(Author author, ISet<int> updatedAuthors, 
 					ISet<int> updatedBooks);

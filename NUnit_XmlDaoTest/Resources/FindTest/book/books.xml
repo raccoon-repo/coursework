@@ -5,35 +5,47 @@
         <section>SCIENCE</section>
         <description>TEST 1</description>
         <rating>7.2</rating>
-        <authors/>
+        <authors>
+            <id>1</id>
+            <id>3</id>
+        </authors>
     </book>
     <book id="2">
         <title>Test 2</title>
         <section>PROGRAMMING</section>
         <description>TEST 2</description>
         <rating>9.0</rating>
-        <authors/>
+        <authors>
+            <id>2</id>
+        </authors>
     </book>
     <book id="3">
         <title>Test 3</title>
         <section>SCIENCE</section>
         <description/>
         <rating>8.0</rating>
-        <authors/>
+        <authors>
+            <id>1</id>
+            <id>2</id>
+        </authors>
     </book>
     <book id="4">
         <title>Test 4</title>
         <section>ART</section>
         <description>TEST 4</description>
         <rating/>
-        <authors/>
+        <authors>
+            <id>2</id>
+        </authors>
     </book>
     <book id="5">
         <title>Test 5</title>
         <section>PROGRAMMING</section>
         <description/>
         <rating>8.5</rating>
-        <authors/>
+        <authors>
+            <id>2</id>
+        </authors>
     </book>
     <book id="6">
         <title>Test 6</title>

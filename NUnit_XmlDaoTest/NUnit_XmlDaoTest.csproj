@@ -59,13 +59,24 @@
   <ItemGroup>
     <Content Include="Resources\authors.xml" />
     <Content Include="Resources\books.xml" />
+    <Content Include="Resources\DeleteTest\author\authors.xml" />
+    <Content Include="Resources\DeleteTest\author\meta-inf.xml" />
+    <Content Include="Resources\DeleteTest\book\books.xml" />
+    <Content Include="Resources\DeleteTest\book\meta-inf.xml" />
     <Content Include="Resources\DHTest\data.xml" />
     <Content Include="Resources\DHTest\.meta-inf.xml" />
+    <Content Include="Resources\FindTest\author\authors.xml" />
+    <Content Include="Resources\FindTest\book\books.xml" />
     <Content Include="Resources\sample.xml" />
     <Content Include="Resources\SaveTest\author\authors-meta-inf.xml" />
     <Content Include="Resources\SaveTest\author\authors.xml" />
     <Content Include="Resources\SaveTest\book\books-meta-inf.xml" />
     <Content Include="Resources\SaveTest\book\books.xml" />
+    <Content Include="Resources\SaveTest\Full\author\authors.xml" />
+    <Content Include="Resources\SaveTest\Full\author\meta-inf.xml" />
+    <Content Include="Resources\SaveTest\Full\book\books.xml" />
+    <Content Include="Resources\SaveTest\Full\book\meta-inf.xml" />
+    <Content Include="Resources\UpdateTest\books.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

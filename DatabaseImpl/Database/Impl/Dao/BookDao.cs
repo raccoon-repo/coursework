@@ -236,7 +236,6 @@ namespace BookLibrary.Database.Impl.Dao
 
 			if (book is BookProxy proxy)
 			{
-				
 				// no need to update cache
 				// because we may have only one proxy
 				// with the same identity at a time 

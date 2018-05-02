@@ -94,6 +94,7 @@ namespace BookLibrary.Xml.Impl.Dao
             var authorDao = GetAuthorDaoFor(forAuthors);
 
             bookDao.AuthorDao = authorDao;
+            authorDao.BookDao = bookDao;
 
             return bookDao;
         }
@@ -104,6 +105,7 @@ namespace BookLibrary.Xml.Impl.Dao
             var bookDao = GetBookDaoFor(forBooks);
 
             authorDao.BookDao = bookDao;
+            bookDao.AuthorDao = authorDao;
 
             return authorDao;
         }

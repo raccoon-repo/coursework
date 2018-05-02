@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<authors>
+  <author id="1">
+    <firstName>Jack</firstName>
+    <lastName>Spenser</lastName>
+    <books>
+      <id>1</id>
+      <id>3</id>
+    </books>
+  </author>
+  <author id="2">
+    <firstName>Peter</firstName>
+    <lastName>White</lastName>
+    <books>
+      <id>3</id>
+      <id>5</id>
+      <id>4</id>
+    </books>
+  </author>
+  <author id="3">
+    <firstName>Walter</firstName>
+    <lastName>Harris</lastName>
+    <books>
+      <id>1</id>
+      <id>2</id>
+    </books>
+  </author>
+</authors>

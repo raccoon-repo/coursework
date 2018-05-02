@@ -1,54 +1,52 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <books>
-  <book id="2">
-    <title>Test 2</title>
-    <section>PROGRAMMING</section>
-    <description>TEST 2</description>
-    <rating>9.0</rating>
+  <book id="1">
+    <section>FICTION</section>
+    <title>b1</title>
+    <description>Test</description>
+    <rating>0</rating>
     <authors>
-      <id>2</id>
+      <id>1</id>
     </authors>
   </book>
-  <book id="3">
-    <title>Test 3</title>
-    <section>SCIENCE</section>
-    <description />
-    <rating>8.0</rating>
+  <book id="2">
+    <section>FICTION</section>
+    <title>b2</title>
+    <description>Test Book</description>
+    <rating>7.9</rating>
     <authors>
       <id>1</id>
       <id>2</id>
     </authors>
   </book>
-  <book id="4">
-    <title>Test 4</title>
-    <section>ART</section>
-    <description>TEST 4</description>
-    <rating />
+  <book id="3">
+    <section>FICTION</section>
+    <title>b3</title>
+    <description>Book for test purpose</description>
+    <rating>9.5</rating>
     <authors>
       <id>2</id>
+    </authors>
+  </book>
+  <book id="4">
+    <section>FICTION</section>
+    <title>b5</title>
+    <description>
+    </description>
+    <rating>0</rating>
+    <authors>
+      <id>2</id>
+      <id>3</id>
     </authors>
   </book>
   <book id="5">
-    <title>Test 5</title>
-    <section>PROGRAMMING</section>
-    <description />
-    <rating>8.5</rating>
+    <section>FICTION</section>
+    <title>b4</title>
+    <description>
+    </description>
+    <rating>0</rating>
     <authors>
-      <id>2</id>
+      <id>1</id>
     </authors>
-  </book>
-  <book id="6">
-    <title>Test 6</title>
-    <section>HOBBY</section>
-    <description>TEST 6</description>
-    <rating>8.2</rating>
-    <authors />
-  </book>
-  <book id="7">
-    <title>Test 7</title>
-    <section>SELF_DEVELOPMENT</section>
-    <description />
-    <rating>8.5</rating>
-    <authors />
   </book>
 </books>

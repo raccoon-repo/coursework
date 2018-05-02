@@ -30,9 +30,13 @@ namespace BookLibrary.Entities.Proxies
 				_booksAreFetchedOrSet = true;
 			}
 		}
-		
-		public AuthorProxy(int id, string firstName, string lastname) 
-			: base(id, firstName, lastname) { }
+
+		public AuthorProxy(int id, string firstName, string lastname)
+			: base(id, firstName, lastname)
+		{
+			_oldFirstName = firstName;
+			_oldLastName = lastname;
+		}
 
         public AuthorProxy() { }
 
