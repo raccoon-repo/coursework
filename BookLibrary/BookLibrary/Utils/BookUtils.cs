@@ -1,7 +1,7 @@
 ﻿using System;
 using BookLibrary.Entities;
 
-namespace BookLibrary.Utils
+namespace BookLibrary
 {
 	public static class BookUtils
 	{

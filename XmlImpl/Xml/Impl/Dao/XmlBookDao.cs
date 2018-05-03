@@ -96,8 +96,8 @@ namespace BookLibrary.Xml.Impl.Dao
 
         public IList<Book> FindByRating(float from, float to)
         {
-            var fromStr = Utils.Utils.FloatToString(from);
-            var toStr = Utils.Utils.FloatToString(to);
+            var fromStr = BookLibrary.Utils.FloatToString(from);
+            var toStr = BookLibrary.Utils.FloatToString(to);
 
             var xDoc = DocumentHolder.Document;
             var root = xDoc.DocumentElement;
@@ -109,7 +109,7 @@ namespace BookLibrary.Xml.Impl.Dao
 
         public IList<Book> FindByRating(float rating)
         {
-            var ratingStr = Utils.Utils.FloatToString(rating);
+            var ratingStr = BookLibrary.Utils.FloatToString(rating);
             var xDoc = DocumentHolder.Document;
             var root = xDoc.DocumentElement;
 
@@ -149,7 +149,7 @@ namespace BookLibrary.Xml.Impl.Dao
             var id = _documentHolder.GetLastInsertedId();
             book.Id = id;
             
-            var bRating = Utils.Utils.FloatToString(book.Rating);
+            var bRating = BookLibrary.Utils.FloatToString(book.Rating);
             
             var xDoc = DocumentHolder.Document;
             var root = xDoc.DocumentElement;
@@ -237,7 +237,7 @@ namespace BookLibrary.Xml.Impl.Dao
             
             //rating
             var ratingNode = bookNode.SelectSingleNode("./rating");
-            AppendText(xDoc, ratingNode, Utils.Utils.FloatToString(book.Rating));    
+            AppendText(xDoc, ratingNode, BookLibrary.Utils.FloatToString(book.Rating));    
             
             if (book is BookProxy proxy)
             {
@@ -371,7 +371,7 @@ namespace BookLibrary.Xml.Impl.Dao
 
             var id = int.Parse(idValue);
             var rating = ratingValue == null ? 1.0f : float.Parse(ratingValue);
-            var section = Utils.BookUtils.ParseSection(sectionValue);
+            var section = BookLibrary.BookUtils.ParseSection(sectionValue);
             
             return new BookProxy(id, title, rating, section, description) {
                 AuthorDao = _xmlAuthorDao

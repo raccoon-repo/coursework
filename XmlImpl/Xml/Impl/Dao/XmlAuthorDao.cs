@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Runtime.Remoting.Messaging;
 using System.Xml;
 using BookLibrary.Core.Dao;
 using BookLibrary.Entities;
@@ -13,8 +14,7 @@ namespace BookLibrary.Xml.Impl.Dao
     public class XmlAuthorDao : IAuthorDao
     {
         private XmlBookDao _xmlBookDao;
-        private DocumentHolder _documentHolder;
-
+        private DocumentHolder _documentHolder; 
         private static ConcurrentDictionary<int, Author> cache = 
             new ConcurrentDictionary<int, Author>();
         
@@ -54,12 +54,21 @@ namespace BookLibrary.Xml.Impl.Dao
 
         public IList<Author> FindAll()
         {
-            throw new System.NotImplementedException();
+            var xDoc = _documentHolder.Document;
+            var root = xDoc.DocumentElement;
+
+            return ParseAuthors(root);
         }
 
         public IList<Author> FindByName(string firstName, string lastName)
         {
-            throw new System.NotImplementedException();
+            var xDoc = _documentHolder.Document;
+            var root = xDoc.DocumentElement;
+
+            var authorNodes =
+                root.SelectNodes("./author[firstName ='" + firstName + "' and lastName = '" + lastName + "']");
+
+            return ParseAuthors(authorNodes);
         }
 
         public IList<Author> FindByBook(Book book)
@@ -280,6 +289,32 @@ namespace BookLibrary.Xml.Impl.Dao
             };
 
             return proxy;
+        }
+
+        public IList<Author> ParseAuthors(XmlNode rootNode)
+        {
+            if (rootNode is null)
+                throw new ArgumentException("rootNode cannot be null");
+            
+            IList<Author> authors = new List<Author>();
+
+            foreach (XmlNode authorNode in rootNode.ChildNodes)
+                authors.Add(ParseAuthor(authorNode));
+
+            return authors;
+        }
+
+        public IList<Author> ParseAuthors(XmlNodeList nodes)
+        {
+            if (nodes is null)
+                throw new ArgumentException("nodes cannot be null");
+            
+            IList<Author> authors = new List<Author>();
+
+            foreach (XmlNode authorNode in nodes)
+                authors.Add(ParseAuthor(authorNode));
+
+            return authors;
         }
 
         public void RemoveBookFromAuthor(Author author, Book book)

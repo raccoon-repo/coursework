@@ -1,7 +1,7 @@
 ﻿using BookLibrary.Entities;
 using BookLibrary.Entities.Proxies;
 using BookLibrary.Database.Queries;
-using BookLibrary.Utils;
+using BookLibrary;
 using BookLibrary.Core.Dao;
 using System;
 using System.Collections.Concurrent;
@@ -194,7 +194,7 @@ namespace BookLibrary.Database.Impl.Dao
 
 			args.Remove("@id");
 			args.Add("@title", book.Title);
-			args.Add("@rating", Utils.Utils.FloatToString(book.Rating));
+			args.Add("@rating", BookLibrary.Utils.FloatToString(book.Rating));
 			args.Add("@section", book.Section.ToString());
 			args.Add("@description", book.Description);
 
@@ -228,7 +228,7 @@ namespace BookLibrary.Database.Impl.Dao
 			var args = new Dictionary<string, string> {
 				{ "@id", book.Id.ToString() }, { "@title", book.Title },
 				{ "@description", book.Description},
-				{ "@rating", Utils.Utils.FloatToString(book.Rating) },
+				{ "@rating", BookLibrary.Utils.FloatToString(book.Rating) },
 				{ "@section", book.Section.ToString() }
 			};
 
@@ -312,8 +312,8 @@ namespace BookLibrary.Database.Impl.Dao
 
 			if (from >= 0.0f && from <= 10.0f && from <= to && to <= 10.0f) {
 				var args = new Dictionary<string, string>() {
-					{ "@from", Utils.Utils.FloatToString(from) },
-					{ "@to", Utils.Utils.FloatToString(to) }
+					{ "@from", BookLibrary.Utils.FloatToString(from) },
+					{ "@to", BookLibrary.Utils.FloatToString(to) }
 				};
 
 				DataSet dataSet = _dBWorker.ExecuteQuery(Books.FIND_BY_RATING_IN_RANGE, args);
@@ -330,7 +330,7 @@ namespace BookLibrary.Database.Impl.Dao
 		{
 			if (rating >= 0.0f && rating <= 10.0f) {
 				var args = new Dictionary<string, string>() {
-					{ "@rating", Utils.Utils.FloatToString(rating) }
+					{ "@rating", BookLibrary.Utils.FloatToString(rating) }
 				};
 
 				DataSet dataSet = _dBWorker.ExecuteQuery(Books.FIND_BY_RATING, args);

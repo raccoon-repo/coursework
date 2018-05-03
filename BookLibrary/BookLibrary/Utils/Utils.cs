@@ -1,4 +1,4 @@
-﻿namespace BookLibrary.Utils
+﻿namespace BookLibrary
 {
 	public class Utils
 	{
