@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
+using System.Threading;
 using BookLibrary.Core.Dao;
 using BookLibrary.Entities;
 using NUnit.Framework;
@@ -185,6 +187,48 @@ namespace NUnit_XmlDaoTest.Tests
             Assert.AreEqual("PROGRAMMING", book.Section.ToString());
             Assert.AreEqual(7.5f, book.Rating);
             Assert.AreEqual("Book about programming", book.Description);
+        }
+
+        [Test]
+        public void Should_Remove_Author_Then_Add_Author()
+        {
+            var booksPath = _projectDir + "/Resources/SaveTest/SaveUpdate/book/books.xml";
+            var bookMetaPath = _projectDir + "/Resources/SaveTest/SaveUpdate/book/meta-inf.xml";
+
+            var authorsPath = _projectDir + "/Resources/SaveTest/SaveUpdate/author/authors.xml";
+            var authorMetaPath = _projectDir + "/Resources/SaveTest/SaveUpdate/author/meta-inf.xml";
+            
+            var dhb = new DocumentHolder(booksPath, bookMetaPath);
+            var dha = new DocumentHolder(authorsPath, authorMetaPath);
+
+            var bookDao = DaoFactory.GetBookDaoFor(dhb, dha);
+            var authorDao = DaoFactory.GetAuthorDaoFor(dha, dhb);
+            
+            var book = bookDao.FindById(1);
+            var author = authorDao.FindById(1);
+            
+            // TEST
+            book.RemoveAuthor(author);
+            
+            bookDao.Save(book, SaveOption.UPDATE_IF_EXIST);
+
+            author = authorDao.FindById(1);
+            
+            Assert.AreEqual(2, author.Books.Count);
+            book = bookDao.FindById(1);
+            Assert.AreEqual(0, book.Authors.Count);
+            
+            book.AddAuthor(author);
+            bookDao.Save(book, SaveOption.UPDATE_IF_EXIST);
+
+            book = bookDao.FindById(1);
+            
+            Assert.AreEqual(1, book.Authors.Count);
+
+            author = authorDao.FindById(1);
+            
+            Assert.AreEqual(3, author.Books.Count);
+
         }
 
         [Test]

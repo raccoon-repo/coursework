@@ -76,7 +76,14 @@
     <Content Include="Resources\SaveTest\Full\author\meta-inf.xml" />
     <Content Include="Resources\SaveTest\Full\book\books.xml" />
     <Content Include="Resources\SaveTest\Full\book\meta-inf.xml" />
+    <Content Include="Resources\SaveTest\SaveUpdate\author\authors.xml" />
+    <Content Include="Resources\SaveTest\SaveUpdate\author\meta-inf.xml" />
+    <Content Include="Resources\SaveTest\SaveUpdate\book\books.xml" />
+    <Content Include="Resources\SaveTest\SaveUpdate\book\meta-inf.xml" />
     <Content Include="Resources\UpdateTest\books.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\SaveTest\SaveUpdate" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

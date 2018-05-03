@@ -132,6 +132,7 @@ namespace BookLibrary.Xml.Impl.Dao
                 var idNode = xDoc.CreateElement("id");
                 idNode.AppendChild(xDoc.CreateTextNode(book.Id.ToString()));
                 booksNode.AppendChild(idNode);
+
             }
 
             cache.TryAdd(author.Id, new AuthorProxy(author) {
@@ -205,15 +206,33 @@ namespace BookLibrary.Xml.Impl.Dao
             
             var fetchedBooks = new HashSet<int>(GetBooksIdByAuthor(author));
 
-            foreach (var id in actualBooks)
+            // no books have been deleted
+            if (fetchedBooks.Count == actualBooks.Count)
+                return;
+            
+            // some books have been added
+            if (actualBooks.Count > fetchedBooks.Count)
             {
-                if (!fetchedBooks.Contains(id))
+                actualBooks.ExceptWith(fetchedBooks);
+
+                foreach (var bookId in actualBooks)
                 {
-                    RemoveBook(author.Id, id);
-                    _xmlBookDao.RemoveAuthor(id, author.Id);
+                    AddBookForAuthor(bookId, author.Id);
                 }
             }
-            
+            // some book have been removed
+            else
+            {
+                fetchedBooks.ExceptWith(actualBooks);
+
+                foreach (var bookId in fetchedBooks)
+                {
+                    RemoveBookFromAuthor(author.Id, bookId);
+                    _xmlBookDao.RemoveAuthorFromBook(bookId, author.Id);
+                }
+            }
+
+            _documentHolder.Document.Save(_documentHolder.Path);
         }
 
         public Author Refresh(Author author)
@@ -263,12 +282,12 @@ namespace BookLibrary.Xml.Impl.Dao
             return proxy;
         }
 
-        public void RemoveBook(Author author, Book book)
+        public void RemoveBookFromAuthor(Author author, Book book)
         {
-            RemoveBook(author.Id, book.Id);
+            RemoveBookFromAuthor(author.Id, book.Id);
         }
 
-        public void RemoveBook(int authorId, int bookId)
+        public void RemoveBookFromAuthor(int authorId, int bookId)
         {
             var xDoc = DocumentHolder.Document;
             var authorNode = GetAuthorNode(authorId);
@@ -282,6 +301,26 @@ namespace BookLibrary.Xml.Impl.Dao
             booksNode.RemoveChild(bookNode);
             
             xDoc.Save(_documentHolder.Path);    
+        }
+
+        public void AddBookForAuthor(int bookId, int authorId)
+        {
+            var xDoc = DocumentHolder.Document;
+            var authorNode = GetAuthorNode(authorId);
+
+            var booksNode = authorNode?.SelectSingleNode("./books");
+
+            var idNode = xDoc.CreateElement("id");
+            idNode.AppendChild(xDoc.CreateTextNode(bookId.ToString()));
+
+            booksNode.AppendChild(idNode);
+            xDoc.Save(_documentHolder.Path);
+
+        }
+
+        public void AddBookForAuthor(Book book, Author author)
+        {
+            AddBookForAuthor(book.Id, author.Id);
         }
         
         private XmlNode GetAuthorNode(Author author)
