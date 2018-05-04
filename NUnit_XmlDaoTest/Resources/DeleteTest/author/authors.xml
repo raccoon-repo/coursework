@@ -21,7 +21,6 @@
     <firstName>Walter</firstName>
     <lastName>Harris</lastName>
     <books>
-      <id>1</id>
       <id>2</id>
     </books>
   </author>

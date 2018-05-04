@@ -1,51 +1,47 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.ComTypes;
-using System.Runtime.Remoting.Messaging;
+using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Xml;
 using BookLibrary.Core.Dao;
 using BookLibrary.Entities;
 using BookLibrary.Entities.Proxies;
+using BookLibrary.Xml.Impl.Utils;
 
 namespace BookLibrary.Xml.Impl.Dao
 {
     public class XmlAuthorDao : IAuthorDao
     {
-        private XmlBookDao _xmlBookDao;
-        private DocumentHolder _documentHolder; 
         private static ConcurrentDictionary<int, Author> cache = 
             new ConcurrentDictionary<int, Author>();
         
-        public DocumentHolder DocumentHolder
-        {
-            get => _documentHolder;
-            set => _documentHolder = value;
-        }
+        public DocumentHolder DocumentHolder { get; set; }
 
-        public XmlBookDao BookDao
-        {
-            get => _xmlBookDao;
-            set => _xmlBookDao = value;
-        }
+        public INodeHandler NodeHandler { get; set; }
         
+        public INodeParser<Author> Parser { get; set; }
+
+        public XmlBookDao BookDao { get; set; }
+
         public XmlAuthorDao() { }
 
         public XmlAuthorDao(DocumentHolder documentHolder)
         {
-            _documentHolder = documentHolder ?? 
+            DocumentHolder = documentHolder ?? 
                  throw new ArgumentException("Specify documentHolder");
 
         }
 
         public Author FindById(int id)
         {
-            var authorNode = GetAuthorNode(id);
+            var root = DocumentHolder.Document.DocumentElement;
+            var authorNode = NodeHandler.GetNodeById(root, id);
+            
             if (authorNode is null)
                 return null;
 
-            var author = ParseAuthor(authorNode);
+            var author = Parser.Parse(authorNode);
             cache.TryAdd(author.Id, author);
 
             return author;
@@ -54,26 +50,26 @@ namespace BookLibrary.Xml.Impl.Dao
 
         public IList<Author> FindAll()
         {
-            var xDoc = _documentHolder.Document;
+            var xDoc = DocumentHolder.Document;
             var root = xDoc.DocumentElement;
 
-            return ParseAuthors(root);
+            return Parser.ParseNodes(root.ChildNodes);
         }
 
         public IList<Author> FindByName(string firstName, string lastName)
         {
-            var xDoc = _documentHolder.Document;
+            var xDoc = DocumentHolder.Document;
             var root = xDoc.DocumentElement;
 
             var authorNodes =
                 root.SelectNodes("./author[firstName ='" + firstName + "' and lastName = '" + lastName + "']");
 
-            return ParseAuthors(authorNodes);
+            return Parser.ParseNodes(authorNodes);
         }
 
         public IList<Author> FindByBook(Book book)
         {
-            var ids = _xmlBookDao.GetAuthorsIdByBook(book);
+            var ids = BookDao.GetAuthorsIdByBook(book);
             var authors = new List<Author>();
 
             foreach (var id in ids)
@@ -103,11 +99,11 @@ namespace BookLibrary.Xml.Impl.Dao
                 }
             }
 
-            var xDoc = _documentHolder.Document;
+            var xDoc = DocumentHolder.Document;
             var root = xDoc.DocumentElement;
             
-            _documentHolder.IncrementLastId();
-            author.Id = _documentHolder.GetLastInsertedId();
+            DocumentHolder.IncrementLastId();
+            author.Id = DocumentHolder.GetLastInsertedId();
 
             var idAttr = xDoc.CreateAttribute("id");
             idAttr.Value = author.Id.ToString();
@@ -134,7 +130,7 @@ namespace BookLibrary.Xml.Impl.Dao
             {
                 if (!savedBooks.Contains(book.Id))
                 {
-                    _xmlBookDao.Save(book, SaveOption.UPDATE_IF_EXIST,
+                    BookDao.Save(book, SaveOption.UPDATE_IF_EXIST,
                         savedAuthors, savedBooks);
                 }
                 
@@ -145,10 +141,10 @@ namespace BookLibrary.Xml.Impl.Dao
             }
 
             cache.TryAdd(author.Id, new AuthorProxy(author) {
-                BookDao = _xmlBookDao
+                BookDao = BookDao
             });
             
-            xDoc.Save(_documentHolder.Path);
+            xDoc.Save(DocumentHolder.Path);
         }
 
         public void Update(Author author)
@@ -156,21 +152,21 @@ namespace BookLibrary.Xml.Impl.Dao
             if (author.Id <= 0)
                 return;
             
-            var xDoc = _documentHolder.Document;
+            var xDoc = DocumentHolder.Document;
             var root = xDoc.DocumentElement;
 
-            var authorNode = root.SelectSingleNode("author[@id = '" + author.Id + "']");
+            var authorNode = root?.SelectSingleNode("author[@id = '" + author.Id + "']");
             
             if (authorNode is null)
                 return;
             
             //first name
             var firstNameNode = authorNode.SelectSingleNode("./firstName");
-            AppendText(xDoc, firstNameNode, author.FirstName);
+            NodeHandler.AppendText(xDoc, firstNameNode, author.FirstName);
             
             //last name
             var lastNameNode = authorNode.SelectSingleNode("./lastName");
-            AppendText(xDoc, lastNameNode, author.LastName);
+            NodeHandler.AppendText(xDoc, lastNameNode, author.LastName);
 
 
             if (author is AuthorProxy a)
@@ -180,11 +176,11 @@ namespace BookLibrary.Xml.Impl.Dao
             else
             {
                 cache.TryAdd(author.Id, new AuthorProxy(author) {
-                    BookDao = _xmlBookDao
+                    BookDao = BookDao
                 });
             }
             
-            xDoc.Save(_documentHolder.Path);
+            xDoc.Save(DocumentHolder.Path);
         }
 
         public void Update(Author author, ISet<int> updatedAuthors, ISet<int> updatedBooks)
@@ -206,7 +202,7 @@ namespace BookLibrary.Xml.Impl.Dao
             {
                 if (!updatedBooks.Contains(book.Id))
                 {
-                    _xmlBookDao.Save(book, SaveOption.UPDATE_IF_EXIST,
+                    BookDao.Save(book, SaveOption.UPDATE_IF_EXIST,
                         updatedAuthors, updatedBooks);
                 }
 
@@ -226,7 +222,7 @@ namespace BookLibrary.Xml.Impl.Dao
 
                 foreach (var bookId in actualBooks)
                 {
-                    AddBookForAuthor(bookId, author.Id);
+                    NodeHandler.AddBookToAuthor(bookId, author.Id);
                 }
             }
             // some book have been removed
@@ -236,27 +232,61 @@ namespace BookLibrary.Xml.Impl.Dao
 
                 foreach (var bookId in fetchedBooks)
                 {
-                    RemoveBookFromAuthor(author.Id, bookId);
-                    _xmlBookDao.RemoveAuthorFromBook(bookId, author.Id);
+                    NodeHandler.RemoveBookFromAuthor(bookId, author.Id);
+                    NodeHandler.RemoveAuthorFromBook(bookId, author.Id);
                 }
             }
 
-            _documentHolder.Document.Save(_documentHolder.Path);
+            DocumentHolder.Document.Save(DocumentHolder.Path);
         }
 
         public Author Refresh(Author author)
         {
-            throw new System.NotImplementedException();
+            if (author.Id <= 0)
+                return author;
+
+            if (author is AuthorProxy proxy)
+            {
+                proxy.Refresh();
+                return proxy;
+            }
+
+            var temp = FindById(author.Id);
+
+            author.FirstName = temp.FirstName;
+            author.LastName = temp.LastName;
+            author.Books = temp.Books;
+
+            return temp;
+
         }
 
         public void Delete(Author author)
         {
-            throw new System.NotImplementedException();
+            if (author.Id <= 0)
+                return;
+
+            foreach (var book in author.Books)
+            {
+                NodeHandler.RemoveAuthorFromBook(book.Id, author.Id);
+            }
+
+            var xDoc = DocumentHolder.Document;
+            var root = xDoc.DocumentElement;
+
+            var authorNode = NodeHandler.GetNodeById(root, author.Id);
+
+            root.RemoveChild(authorNode);
+            cache.TryRemove(author.Id, out _);
+            
+            xDoc.Save(DocumentHolder.Path);
+
         }
 
         public IList<int> GetBooksIdByAuthor(Author a)
         {
-            var authorNode = GetAuthorNode(a);
+            var root = DocumentHolder.Document.DocumentElement;
+            var authorNode = NodeHandler.GetNodeById(root, a.Id);
             var booksNode = authorNode.SelectSingleNode("./books");
             
             var list = new List<int>();
@@ -269,116 +299,6 @@ namespace BookLibrary.Xml.Impl.Dao
             }
 
             return list;
-
-        }
-
-        public Author ParseAuthor(XmlNode authorNode)
-        {
-            if (authorNode is null)
-                throw new ArgumentException("authorNode cannot be null");
-
-            var id = int.Parse(authorNode.Attributes["id"].Value);
-            var firstName = authorNode.SelectSingleNode("./firstName")
-                ?.FirstChild.Value;
-
-            var lastName = authorNode.SelectSingleNode("./lastName")
-                ?.FirstChild.Value;
-
-            var proxy = new AuthorProxy(id, firstName, lastName) {
-                BookDao = _xmlBookDao
-            };
-
-            return proxy;
-        }
-
-        public IList<Author> ParseAuthors(XmlNode rootNode)
-        {
-            if (rootNode is null)
-                throw new ArgumentException("rootNode cannot be null");
-            
-            IList<Author> authors = new List<Author>();
-
-            foreach (XmlNode authorNode in rootNode.ChildNodes)
-                authors.Add(ParseAuthor(authorNode));
-
-            return authors;
-        }
-
-        public IList<Author> ParseAuthors(XmlNodeList nodes)
-        {
-            if (nodes is null)
-                throw new ArgumentException("nodes cannot be null");
-            
-            IList<Author> authors = new List<Author>();
-
-            foreach (XmlNode authorNode in nodes)
-                authors.Add(ParseAuthor(authorNode));
-
-            return authors;
-        }
-
-        public void RemoveBookFromAuthor(Author author, Book book)
-        {
-            RemoveBookFromAuthor(author.Id, book.Id);
-        }
-
-        public void RemoveBookFromAuthor(int authorId, int bookId)
-        {
-            var xDoc = DocumentHolder.Document;
-            var authorNode = GetAuthorNode(authorId);
-
-            var booksNode = authorNode?.SelectSingleNode("./books");
-            var bookNode = authorNode?.SelectSingleNode("./books/id[. ='" + bookId + "']");
-            
-            if (booksNode is null || bookNode is null)
-                return;
-
-            booksNode.RemoveChild(bookNode);
-            
-            xDoc.Save(_documentHolder.Path);    
-        }
-
-        public void AddBookForAuthor(int bookId, int authorId)
-        {
-            var xDoc = DocumentHolder.Document;
-            var authorNode = GetAuthorNode(authorId);
-
-            var booksNode = authorNode?.SelectSingleNode("./books");
-
-            var idNode = xDoc.CreateElement("id");
-            idNode.AppendChild(xDoc.CreateTextNode(bookId.ToString()));
-
-            booksNode.AppendChild(idNode);
-            xDoc.Save(_documentHolder.Path);
-
-        }
-
-        public void AddBookForAuthor(Book book, Author author)
-        {
-            AddBookForAuthor(book.Id, author.Id);
-        }
-        
-        private XmlNode GetAuthorNode(Author author)
-        {
-            return GetAuthorNode(author.Id);
-        }
-
-        private XmlNode GetAuthorNode(int id)
-        {
-            var xDoc = DocumentHolder.Document;
-            var root = xDoc.DocumentElement;
-            
-            var authorNode = root.SelectSingleNode("author[@id ='" + id + "']");
-
-            return authorNode;
-        }
-        
-        private void AppendText(XmlDocument xDoc, XmlNode parent, string text)
-        {
-            if (!parent.HasChildNodes)
-                parent.AppendChild(xDoc.CreateTextNode(text));
-            else
-                parent.FirstChild.Value = text;
         }
     }
 }

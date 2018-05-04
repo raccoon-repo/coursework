@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Messaging;
+ using BookLibrary.Entities;
+using BookLibrary.Xml.Impl.Utils.Impl;
 
 namespace BookLibrary.Xml.Impl.Dao
 {
@@ -14,42 +14,8 @@ namespace BookLibrary.Xml.Impl.Dao
         private static readonly Dictionary<DocumentHolder, XmlAuthorDao>
             AuthorDaoCache = new Dictionary<DocumentHolder, XmlAuthorDao>();
         
-        /*
-         * Retrieve cached dao that corresponds to specified path
-         * path is the path to xml document with data
-         */
-        public static XmlBookDao GetBookDaoFor(string path)
-        {
-            if (path is null)
-                throw new ArgumentException("Specify the path to a document");
 
-            var documentHolder = new DocumentHolder(path);
-            
-            if (BookDaoCache.TryGetValue(documentHolder, out var bookDao))
-                return bookDao;
-
-            bookDao = new XmlBookDao(documentHolder);
-            BookDaoCache.Add(documentHolder, bookDao);
-            
-            return bookDao;
-        }
-
-        public static XmlAuthorDao GetAuthorDaoFor(string path)
-        {
-            if (path is null)
-                throw new ArgumentException("Specify the path to a document");
-            var documentHolder = new DocumentHolder(path);
-
-            if (AuthorDaoCache.TryGetValue(documentHolder, out var authorDao))
-                return authorDao;
-
-            authorDao = new XmlAuthorDao(documentHolder);
-            AuthorDaoCache.Add(documentHolder, authorDao);
-
-            return authorDao;
-        }
-
-        public static XmlBookDao GetBookDaoFor(DocumentHolder holder)
+        private static XmlBookDao BookDao(DocumentHolder holder)
         {
             if (holder == null)
                 throw new ArgumentException("Specify document holder");
@@ -63,12 +29,12 @@ namespace BookLibrary.Xml.Impl.Dao
             return bookDao;
         }
 
-        public static XmlAuthorDao GetAuthorDaoFor(DocumentHolder holder)
+        private static XmlAuthorDao AuthorDao(DocumentHolder holder)
         {
             if (holder == null)
                 throw new ArgumentException("Specify document holder");
 
-            if (AuthorDaoCache.TryGetValue(holder, out XmlAuthorDao authorDao))
+            if (AuthorDaoCache.TryGetValue(holder, out var authorDao))
                 return authorDao;
             
             authorDao = new XmlAuthorDao(holder);
@@ -88,24 +54,50 @@ namespace BookLibrary.Xml.Impl.Dao
          * returns configured BookDao instance that contains AuthorDao
          * for the specified path of the document
          */
-        public static XmlBookDao GetBookDaoFor(DocumentHolder forBooks, DocumentHolder forAuthors)
+        public static XmlBookDao BookDao(DocumentHolder forBooks, DocumentHolder forAuthors)
         {
-            var bookDao = GetBookDaoFor(forBooks);
-            var authorDao = GetAuthorDaoFor(forAuthors);
+            var bookDao = BookDao(forBooks);
+            var authorDao = AuthorDao(forAuthors);
 
             bookDao.AuthorDao = authorDao;
             authorDao.BookDao = bookDao;
 
+            bookDao.Parser = new BookProxyNodeParser<Book>() {
+                AuthorDao = authorDao
+            };
+
+            authorDao.Parser = new AuthorProxyNodeParser<Author>() {
+                BookDao = bookDao
+            };
+
+            var nodeHandler = NodeHandler.GetNodeHandlerFor(forBooks, forAuthors);
+
+            authorDao.NodeHandler = nodeHandler;
+            bookDao.NodeHandler = nodeHandler;
+            
             return bookDao;
         }
 
-        public static XmlAuthorDao GetAuthorDaoFor(DocumentHolder forAuthors, DocumentHolder forBooks)
+        public static XmlAuthorDao AuthorDao(DocumentHolder forAuthors, DocumentHolder forBooks)
         {
-            var authorDao = GetAuthorDaoFor(forAuthors);
-            var bookDao = GetBookDaoFor(forBooks);
+            var authorDao = AuthorDao(forAuthors);
+            var bookDao = BookDao(forBooks);
 
             authorDao.BookDao = bookDao;
             bookDao.AuthorDao = authorDao;
+
+            authorDao.Parser = new AuthorProxyNodeParser<Author>() {
+                BookDao = bookDao
+            };
+
+            bookDao.Parser = new BookProxyNodeParser<Book>() {
+                AuthorDao = authorDao
+            };
+            
+            var nodeHandler = NodeHandler.GetNodeHandlerFor(forBooks, forAuthors);
+
+            authorDao.NodeHandler = nodeHandler;
+            bookDao.NodeHandler = nodeHandler;
 
             return authorDao;
         }

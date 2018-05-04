@@ -7,16 +7,16 @@ namespace BookLibrary.Xml.Impl.Dao
 {
     public class DocumentHolder
     {
-        private static string _argExcMessage =
+        private const string ArgExcMessage = 
             "Null is an inaccessible value. Specify the path";
 
-        private static string _metaInfArgExc =
+        private const string MetaInfArgExc =
             "Null is an inaccessible value. Specify the path of meta information";
         
-        private XmlDocument _document;
-        private XmlDocument _metaInf;
-        private string _path;
-        private string _metaInfPath;
+        private readonly XmlDocument _document;
+        private readonly XmlDocument _metaInf;
+        private readonly string _path;
+        private readonly string _metaInfPath;
 
         public string Path => _path;
 
@@ -24,7 +24,7 @@ namespace BookLibrary.Xml.Impl.Dao
 
         public DocumentHolder(string path)
         {
-            _path = path ?? throw new ArgumentException(_argExcMessage);
+            _path = path ?? throw new ArgumentException(ArgExcMessage);
             _document = new XmlDocument();
             _document.Load(_path);            
         }
@@ -36,8 +36,8 @@ namespace BookLibrary.Xml.Impl.Dao
          */
         public DocumentHolder(string path, string metaInfPath)
         {
-            _path = path ?? throw new ArgumentException(_argExcMessage);
-            _metaInfPath = metaInfPath ?? throw new ArgumentException(_metaInfArgExc);
+            _path = path ?? throw new ArgumentException(ArgExcMessage);
+            _metaInfPath = metaInfPath ?? throw new ArgumentException(MetaInfArgExc);
             
             _document = new XmlDocument();
             _metaInf = new XmlDocument();
@@ -64,6 +64,7 @@ namespace BookLibrary.Xml.Impl.Dao
                                           "specified. Can't increment last inserted id");
 
             int lastId = GetLastInsertedId() + 1;
+            
             _metaInf.SelectSingleNode("//lastInsertedId").FirstChild.Value = lastId.ToString();
             _metaInf.Save(_metaInfPath);
         }

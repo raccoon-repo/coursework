@@ -1,39 +1,32 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Xml;
 using BookLibrary.Core.Dao;
 using BookLibrary.Entities;
 using BookLibrary.Entities.Proxies;
+using BookLibrary.Xml.Impl.Utils;
 
 namespace BookLibrary.Xml.Impl.Dao
 {
     public class XmlBookDao : IBookDao
-    {
-        private DocumentHolder _documentHolder;
-        private XmlAuthorDao _xmlAuthorDao;
-        
+    {        
         private static ConcurrentDictionary<int, Book> 
             cache = new ConcurrentDictionary<int, Book>();
-        
-        public DocumentHolder DocumentHolder
-        {
-            get => _documentHolder;
-            set => _documentHolder = value;
-        }
 
-        public XmlAuthorDao AuthorDao
-        {
-            get => _xmlAuthorDao;
-            set => _xmlAuthorDao = value;
-        }
-        
+        public INodeParser<Book> Parser { get; set; }
+
+        public INodeHandler NodeHandler { get; set; }
+
+        public DocumentHolder DocumentHolder { get; set; }
+
+        public XmlAuthorDao AuthorDao { get; set; }
+
         public XmlBookDao() { }
 
         public XmlBookDao(DocumentHolder documentHolder)
         {
-            _documentHolder = documentHolder ?? 
+            DocumentHolder = documentHolder ?? 
                   throw new ArgumentException("Specify documentHolder");
         }
         
@@ -48,11 +41,12 @@ namespace BookLibrary.Xml.Impl.Dao
             var xDoc = DocumentHolder.Document;
             var root = xDoc.DocumentElement;
 
-            var bookNode = root.SelectSingleNode("book[@id='" + id + "']");
+            var bookNode = NodeHandler.GetNodeById(root, id);
+            
             if (bookNode is null)
                 return null;
 
-            book = ParseBook(bookNode);
+            book = Parser.Parse(bookNode);
             cache.TryAdd(id, book);
             return book;
         }
@@ -62,7 +56,7 @@ namespace BookLibrary.Xml.Impl.Dao
             var xDoc = DocumentHolder.Document;
             var root = xDoc.DocumentElement;
 
-            return ParseBooks(root);
+            return Parser.ParseNodes(root.ChildNodes);
         }
 
         public IList<Book> FindBySection(BookSection section)
@@ -70,18 +64,19 @@ namespace BookLibrary.Xml.Impl.Dao
             var xDoc = DocumentHolder.Document;
             var root = xDoc.DocumentElement;
             var bookNodes = root.SelectNodes("book[section='" + section + "']");
-            return ParseBooks(bookNodes);
+            
+            return Parser.ParseNodes(bookNodes);
 
         }
 
         public IList<Book> FindByAuthor(Author author)
         {
-            var ids = _xmlAuthorDao.GetBooksIdByAuthor(author);
+            var ids = AuthorDao.GetBooksIdByAuthor(author);
             var result = new List<Book>();
 
             foreach (var id in ids)
                 result.Add(FindById(id));
-
+            
             return result;
         }
 
@@ -91,7 +86,7 @@ namespace BookLibrary.Xml.Impl.Dao
             var root = xDoc.DocumentElement;
 
             var bookNodes = root.SelectNodes("book[title='" + title + "']");
-            return ParseBooks(bookNodes);
+            return Parser.ParseNodes(bookNodes);
         }
 
         public IList<Book> FindByRating(float from, float to)
@@ -102,9 +97,9 @@ namespace BookLibrary.Xml.Impl.Dao
             var xDoc = DocumentHolder.Document;
             var root = xDoc.DocumentElement;
 
-            var bookNodes = root.SelectNodes("book[rating >= " + fromStr + " and rating <= " + to + "]");
+            var bookNodes = root.SelectNodes("book[rating >= " + fromStr + " and rating <= " + toStr + "]");
 
-            return ParseBooks(bookNodes);
+            return Parser.ParseNodes(bookNodes);
         }
 
         public IList<Book> FindByRating(float rating)
@@ -113,8 +108,8 @@ namespace BookLibrary.Xml.Impl.Dao
             var xDoc = DocumentHolder.Document;
             var root = xDoc.DocumentElement;
 
-            var bookNodes = root.SelectNodes("book[rating='" + rating + "']");
-            return ParseBooks(bookNodes);
+            var bookNodes = root.SelectNodes("book[rating='" + ratingStr + "']");
+            return Parser.ParseNodes(bookNodes);
         }
 
         public bool BookIsPresent(Book book)
@@ -141,12 +136,10 @@ namespace BookLibrary.Xml.Impl.Dao
                         return;
                 }
             }
-
-            
            
             //Implementation of AUTO_INCREMENT
-            _documentHolder.IncrementLastId();
-            var id = _documentHolder.GetLastInsertedId();
+            DocumentHolder.IncrementLastId();
+            var id = DocumentHolder.GetLastInsertedId();
             book.Id = id;
             
             var bRating = BookLibrary.Utils.FloatToString(book.Rating);
@@ -195,7 +188,7 @@ namespace BookLibrary.Xml.Impl.Dao
             {
                 if (!savedAuthors.Contains(author.Id))
                 {
-                    _xmlAuthorDao.Save(author, SaveOption.UPDATE_IF_EXIST,
+                    AuthorDao.Save(author, SaveOption.UPDATE_IF_EXIST,
                         savedAuthors, savedBooks);
                     
                 }
@@ -207,15 +200,15 @@ namespace BookLibrary.Xml.Impl.Dao
             }
 
             cache.TryAdd(book.Id, new BookProxy(book) {
-                AuthorDao = _xmlAuthorDao
+                AuthorDao = AuthorDao
             });
             
-            xDoc.Save(_documentHolder.Path);
+            xDoc.Save(DocumentHolder.Path);
         }
 
         public void Update(Book book)
         {
-            var xDoc = _documentHolder.Document;
+            var xDoc = DocumentHolder.Document;
             var root = xDoc.DocumentElement;
 
             var bookNode = root.SelectSingleNode("book[@id = '" + book.Id + "']");
@@ -225,19 +218,19 @@ namespace BookLibrary.Xml.Impl.Dao
 
             //title
             var titleNode = bookNode.SelectSingleNode("./title");
-            AppendText(xDoc, titleNode, book.Title);
+            NodeHandler.AppendText(xDoc, titleNode, book.Title);
             
             //section
             var sectionNode = bookNode.SelectSingleNode("./section");
-            AppendText(xDoc, sectionNode, book.Section.ToString());    
+            NodeHandler.AppendText(xDoc, sectionNode, book.Section.ToString());    
                        
             //description
             var descriptionNode = bookNode.SelectSingleNode("./description");
-            AppendText(xDoc, descriptionNode, book.Description);    
+            NodeHandler.AppendText(xDoc, descriptionNode, book.Description);    
             
             //rating
             var ratingNode = bookNode.SelectSingleNode("./rating");
-            AppendText(xDoc, ratingNode, BookLibrary.Utils.FloatToString(book.Rating));    
+            NodeHandler.AppendText(xDoc, ratingNode, BookLibrary.Utils.FloatToString(book.Rating));    
             
             if (book is BookProxy proxy)
             {
@@ -246,11 +239,11 @@ namespace BookLibrary.Xml.Impl.Dao
             else
             {
                 cache.TryAdd(book.Id, new BookProxy() {
-                    AuthorDao = _xmlAuthorDao
+                    AuthorDao = AuthorDao
                 });
             }
             
-            xDoc.Save(_documentHolder.Path);            
+            xDoc.Save(DocumentHolder.Path);            
         }
 
         public void Update(Book book, ISet<int> updatedAuthors, ISet<int> updatedBooks)
@@ -272,7 +265,7 @@ namespace BookLibrary.Xml.Impl.Dao
             {
                 if (!updatedAuthors.Contains(author.Id))
                 {
-                    _xmlAuthorDao.Save(author, SaveOption.UPDATE_IF_EXIST,
+                    AuthorDao.Save(author, SaveOption.UPDATE_IF_EXIST,
                         updatedAuthors, updatedBooks);
                 }
 
@@ -290,7 +283,7 @@ namespace BookLibrary.Xml.Impl.Dao
 
                 foreach (var authorId in actualAuthors)
                 {
-                    AddAuthorForBook(book.Id, authorId);
+                    NodeHandler.AddAuthorToBook(book.Id, authorId);
                 }
             }
             else
@@ -299,12 +292,12 @@ namespace BookLibrary.Xml.Impl.Dao
 
                 foreach (var authorId in fetchedAuthors)
                 {
-                    RemoveAuthorFromBook(book.Id, authorId);
-                    _xmlAuthorDao.RemoveBookFromAuthor(authorId, book.Id);
+                    NodeHandler.RemoveAuthorFromBook(book.Id, authorId);
+                    NodeHandler.RemoveBookFromAuthor(book.Id, authorId);
                 }
             }
             
-            _documentHolder.Document.Save(_documentHolder.Path);
+            DocumentHolder.Document.Save(DocumentHolder.Path);
 
         }
 
@@ -328,6 +321,7 @@ namespace BookLibrary.Xml.Impl.Dao
             book.Title = temp.Title;
             book.Rating = temp.Rating;
             book.Section = temp.Section;
+            book.Authors = temp.Authors;
 
 
             return temp;
@@ -341,10 +335,10 @@ namespace BookLibrary.Xml.Impl.Dao
 
             foreach (var author in book.Authors)
             {
-                _xmlAuthorDao.RemoveBookFromAuthor(author, book);
+                NodeHandler.RemoveBookFromAuthor(book.Id, author.Id);
             }
             
-            var xDoc = _documentHolder.Document;
+            var xDoc = DocumentHolder.Document;
             var root = xDoc.DocumentElement;
 
             var bookNode = root.SelectSingleNode("book[@id ='" + book.Id + "']");
@@ -352,54 +346,12 @@ namespace BookLibrary.Xml.Impl.Dao
 
             cache.TryRemove(book.Id, out _);
             
-            xDoc.Save(_documentHolder.Path);
-        }
-
-        private Book ParseBook(XmlNode bookNode)
-        {
-            var title = bookNode.SelectSingleNode("./title")?.FirstChild?.Value;
-            var description = bookNode.SelectSingleNode("./description")?.FirstChild?.Value;
-            var sectionValue = bookNode.SelectSingleNode("./section")?.FirstChild?.Value;
-            var idValue = bookNode.Attributes?["id"].Value;
-            var ratingValue = bookNode.SelectSingleNode("./rating")?.FirstChild?.Value;
-
-            if (idValue == null)
-            {
-                return null;
-            }
-
-
-            var id = int.Parse(idValue);
-            var rating = ratingValue == null ? 1.0f : float.Parse(ratingValue);
-            var section = BookLibrary.BookUtils.ParseSection(sectionValue);
-            
-            return new BookProxy(id, title, rating, section, description) {
-                AuthorDao = _xmlAuthorDao
-            };
-        }
-
-        private IList<Book> ParseBooks(XmlNode rootNode)
-        {
-            IList<Book> books = new List<Book>();
-            XmlNodeList nodes = rootNode.SelectNodes("./book");
-            foreach (XmlNode bookNode in nodes)
-                books.Add(ParseBook(bookNode));
-            
-            return books;
-        }
-
-        private IList<Book> ParseBooks(XmlNodeList list)
-        {
-            IList<Book> books = new List<Book>();
-            foreach (XmlNode bookNode in list)
-                books.Add(ParseBook(bookNode));
-
-            return books;
+            xDoc.Save(DocumentHolder.Path);
         }
 
         public IList<int> GetAuthorsIdByBook(Book book)
         {
-            var xDoc = _documentHolder.Document;
+            var xDoc = DocumentHolder.Document;
             var root = xDoc.DocumentElement;
 
             var authors = root.SelectSingleNode("book[@id = '" + book.Id + "']/authors");
@@ -412,57 +364,6 @@ namespace BookLibrary.Xml.Impl.Dao
             }
 
             return ids;
-        }
-
-        public void RemoveAuthorFromBook(Book book, Author author)
-        {
-            RemoveAuthorFromBook(book.Id, author.Id);
-        }
-
-        public void RemoveAuthorFromBook(int bookId, int authorId)
-        {
-            var xDoc = _documentHolder.Document;
-            var root = xDoc.DocumentElement;
-
-            var bookNode = root.SelectSingleNode("book[@id = '" + bookId + "']");
-            var authorsNode = bookNode?.SelectSingleNode("./authors");
-            var authorNode = bookNode?.SelectSingleNode("./authors/id[. = '" + authorId + "']");
-            
-            if (authorsNode is null || authorNode is null)
-                return;
-
-            authorsNode.RemoveChild(authorNode);
-            
-            xDoc.Save(_documentHolder.Path);
-        }
-
-        public void AddAuthorForBook(int bookId, int authorId)
-        {
-            var xDoc = _documentHolder.Document;
-            var root = xDoc.DocumentElement;
-
-            var bookNode = root.SelectSingleNode("book[@id = '" + bookId + "']");
-            var authorsNode = bookNode?.SelectSingleNode("./authors");
-
-            var idNode = xDoc.CreateElement("id");
-            idNode.AppendChild(xDoc.CreateTextNode(authorId.ToString()));
-
-            authorsNode.AppendChild(idNode);
-            
-            xDoc.Save(_documentHolder.Path);
-        }
-
-        public void AddAuthorForBook(Book book, Author author)
-        {
-            AddAuthorForBook(book.Id, author.Id);
-        }
-
-        private void AppendText(XmlDocument xDoc, XmlNode parent, string text)
-        {
-            if (!parent.HasChildNodes)
-                parent.AppendChild(xDoc.CreateTextNode(text));
-            else
-                parent.FirstChild.Value = text;
         }
         
     }

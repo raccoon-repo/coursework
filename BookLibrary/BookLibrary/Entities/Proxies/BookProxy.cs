@@ -81,6 +81,10 @@ namespace BookLibrary.Entities.Proxies
 			Section 	= _oldSection;
 			Description = _oldDescription;
 
+			if (_authorsAreFetchedOrSet) {
+				FetchAuthors();
+			}
+
 			return this;
 		}
 

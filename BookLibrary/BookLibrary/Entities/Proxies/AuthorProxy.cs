@@ -100,6 +100,9 @@ namespace BookLibrary.Entities.Proxies
 			FirstName = _oldFirstName;
 			LastName = _oldLastName;
 
+			if (_booksAreFetchedOrSet) {
+				FetchBooks();
+			}
 			return this;
 		}
 

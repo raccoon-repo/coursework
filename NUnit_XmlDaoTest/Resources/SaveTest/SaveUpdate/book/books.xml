@@ -1,19 +1,19 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <books>
   <book id="1">
-    <section>FICTION</section>
-    <title>b1</title>
-    <description>Test</description>
-    <rating>0</rating>
+    <section>SCIENCE</section>
+    <title>Test 1</title>
+    <description>TEST 1</description>
+    <rating>7.2</rating>
     <authors>
       <id>1</id>
     </authors>
   </book>
   <book id="2">
-    <section>FICTION</section>
-    <title>b2</title>
-    <description>Test Book</description>
-    <rating>7.9</rating>
+    <section>PROGRAMMING</section>
+    <title>Test 2</title>
+    <description>TEST 2</description>
+    <rating>9</rating>
     <authors>
       <id>1</id>
       <id>2</id>
