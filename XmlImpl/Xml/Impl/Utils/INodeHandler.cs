@@ -1,5 +1,4 @@
-﻿
-using System.Xml;
+﻿using System.Xml;
 
 namespace BookLibrary.Xml.Impl.Utils
 {

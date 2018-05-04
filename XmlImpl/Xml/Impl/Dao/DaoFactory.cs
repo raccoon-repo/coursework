@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
- using BookLibrary.Entities;
+using BookLibrary.Entities;
 using BookLibrary.Xml.Impl.Utils.Impl;
 
 namespace BookLibrary.Xml.Impl.Dao
@@ -101,7 +101,5 @@ namespace BookLibrary.Xml.Impl.Dao
 
             return authorDao;
         }
-        
-        
     }
 }
