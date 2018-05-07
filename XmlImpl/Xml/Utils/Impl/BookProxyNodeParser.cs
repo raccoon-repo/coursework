@@ -31,7 +31,7 @@ namespace BookLibrary.Xml.Utils.Impl
 
 
             var id = int.Parse(idValue);
-            var rating = ratingValue == null ? 1.0f : float.Parse(ratingValue, CultureInfo.InvariantCulture);
+            var rating = ratingValue == null ? 0.0f : float.Parse(ratingValue, CultureInfo.InvariantCulture);
             var section = BookLibrary.BookUtils.ParseSection(sectionValue);
 
             return new BookProxy(id, title, rating, section, description)

@@ -47,4 +47,34 @@
       <id>3</id>
     </authors>
   </book>
+  <book id="6">
+    <section>FICTION</section>
+    <title>Ten Ways To Write Your Coursework</title>
+    <description>dwadwa</description>
+    <rating>10</rating>
+    <authors>
+      <id>3</id>
+      <id>4</id>
+    </authors>
+  </book>
+  <book id="7">
+    <section>FICTION</section>
+    <title>No More Sorow</title>
+    <description>
+    </description>
+    <rating>10</rating>
+    <authors>
+      <id>5</id>
+    </authors>
+  </book>
+  <book id="8">
+    <section>FICTION</section>
+    <title>Breaking The Habit</title>
+    <description>
+    </description>
+    <rating>10</rating>
+    <authors>
+      <id>5</id>
+    </authors>
+  </book>
 </books>

@@ -14,10 +14,22 @@
   </entry>
   <entry>
     <bookId>4</bookId>
-    <count>0</count>
+    <count>1</count>
   </entry>
   <entry>
     <bookId>5</bookId>
     <count>2</count>
+  </entry>
+  <entry>
+    <bookId>6</bookId>
+    <count>10</count>
+  </entry>
+  <entry>
+    <bookId>7</bookId>
+    <count>5</count>
+  </entry>
+  <entry>
+    <bookId>8</bookId>
+    <count>0</count>
   </entry>
 </entries>

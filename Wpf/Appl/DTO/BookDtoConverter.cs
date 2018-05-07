@@ -15,7 +15,8 @@ namespace Wpf.Appl.DTO
                 Id = book.Id,
                 Title = book.Title,
                 Rating = book.Rating,
-                Quantity = BookCounter.Count(book.Id)
+                Quantity = BookCounter.Count(book.Id),
+                Section = book.Section.ToString().ToLower().Replace("_", " ")
             };
         }
 

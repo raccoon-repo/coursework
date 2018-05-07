@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Controls;
+using BookLibrary;
 using BookLibrary.Core.Service;
 using BookLibrary.Entities;
 using BookLibrary.Xml.Utils;
@@ -52,6 +54,7 @@ namespace Wpf.Appl.Gui
 
 
             editBookWindow.ShowDialog();
+            allBooksDataGrid.Items.Refresh();
         }
 
         private void New_Book_Button_Click(object sender, RoutedEventArgs args)
@@ -64,7 +67,16 @@ namespace Wpf.Appl.Gui
                 BookCounter = BookCounter
             };
 
-            bookWindow.Show();
+            BookDtoConverter dtoConverter = new BookDtoConverter {
+                BookCounter = BookCounter
+            };
+
+            bookWindow.ShowDialog();
+            if (bookWindow.BookIsSaved)
+            {
+                ((IList<BookDto>)allBooksDataGrid.ItemsSource).Add(dtoConverter.ConvertBook(bookWindow.Book));
+                allBooksDataGrid.Items.Refresh();
+            }
         }
 
         private void Remove_Button_Click(object sender, RoutedEventArgs args)
@@ -85,6 +97,32 @@ namespace Wpf.Appl.Gui
                 BookCounter = BookCounter
             };
             allBooksDataGrid.ItemsSource = dtoConverter.ConvertBooks(BookService.FindAll());
+        }
+
+
+
+        private void Section_Selection_Changed(object sender, RoutedEventArgs args)
+        {
+            ComboBox box = (ComboBox)sender;
+            BookSection section = BookUtils.ParseSection(box.SelectedValue.ToString());
+
+            BookDtoConverter dtoConverter = new BookDtoConverter
+            {
+                BookCounter = BookCounter
+            };
+
+            allBooksBySection.ItemsSource = dtoConverter.ConvertBooks(BookService.FindBySection(section));
+            allBooksBySection.Items.Refresh();
+        }
+
+        private void Search_By_Author_Loaded(object sender, RoutedEventArgs args)
+        {
+
+        }
+
+        private void Search_Button_Click(object sender, RoutedEventArgs args)
+        {
+
         }
     }
 }

@@ -54,7 +54,14 @@ namespace BookLibrary.Entities
 		public float Rating 
 		{
 			get => _rating;
-			set => _rating = value;
+			set {
+                if (value < 0.0f)
+                    _rating = 0.0f;
+                else if (value > 10.0f)
+                    _rating = 10.0f;
+                else
+                    _rating = value;
+            }
 		}
 
 		public virtual IList<Author> Authors

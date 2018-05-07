@@ -62,10 +62,28 @@
                     <Grid Margin="20 5 20 5">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
-                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="Rating: " Grid.Column="0" Height="24" />
-                        <TextBox x:Name="ratingTextBox" Height="24" Grid.Column="1"/>
+
+                        <Grid Grid.Column="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Rating: " Grid.Column="0" Height="24" />
+                            <TextBox x:Name="ratingTextBox" Height="24" Width="45"  Grid.Column="1"/>
+                        </Grid>
+
+                        <Grid Grid.Column="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Count: " Grid.Column="0" Height="24" />
+                            <TextBox x:Name="countTextBox" Height="24" Width="45"  Grid.Column="1"/>
+                        </Grid>
                     </Grid>
                 </StackPanel>
 

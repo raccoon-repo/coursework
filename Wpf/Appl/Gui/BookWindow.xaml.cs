@@ -3,6 +3,7 @@ using BookLibrary.Core.Service;
 using BookLibrary.Entities;
 using BookLibrary.Xml.Utils;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -23,6 +24,8 @@ namespace Wpf.Appl.Gui
 
         public Book Book { get; set; }
 
+        public bool BookIsSaved { get; set; }
+
         public BookWindow()
         {
             InitializeComponent();
@@ -34,6 +37,7 @@ namespace Wpf.Appl.Gui
             ratingTextBox.Text = Book.Rating.ToString();
             descriptionTextBox.Text = Book.Description;
             sectionComboBox.SelectedItem = (ComboBoxItem)this.FindName(Book.Section.ToString());
+            countTextBox.Text = BookCounter.Count(Book.Id).ToString();
             bookAuthors.ItemsSource = Book.Authors;
         }
 
@@ -52,7 +56,13 @@ namespace Wpf.Appl.Gui
         { 
             if (!float.TryParse(ratingTextBox.Text, out _))
             {
-                MessageBox.Show("The value of rating is incorrect. Enter it again");
+                MessageBox.Show("The value of rating is invalid. Enter it again");
+                return;
+            }
+
+            if (!int.TryParse(countTextBox.Text, out _))
+            {
+                MessageBox.Show("The value of count is invalid. Enter it again");
                 return;
             }
 
@@ -63,6 +73,16 @@ namespace Wpf.Appl.Gui
             Book.Authors = (bookAuthors.ItemsSource as IList<Author>);
 
             BookService.SaveOrUpdate(Book);
+
+            if (!BookCounter.IsPresent(Book.Id)) {
+                BookCounter.AddNew(Book.Id, int.Parse(countTextBox.Text));
+            }
+            else
+            {
+                BookCounter.SetCount(Book.Id, int.Parse(countTextBox.Text));
+            }
+
+            BookIsSaved = true;
         }
 
         private void Add_Author_Button_Click(object sender, RoutedEventArgs e)
@@ -81,7 +101,13 @@ namespace Wpf.Appl.Gui
 
         private void Delete_Button_Click(object sender, RoutedEventArgs e)
         {
+            DeleteDialogWindow deleteDialog = new DeleteDialogWindow();
 
+            if (deleteDialog.ShowDialog() == true)
+            {
+                BookService.Delete(Book);
+                Close();
+            }
         }
 
         private void Remove_Author_Button_Click(object sender, RoutedEventArgs e)

@@ -11,7 +11,7 @@ namespace BookLibrary
 
             if (section.Contains(" "))
             {
-                section.Replace(" ", "_");
+                section = section.Replace(" ", "_");
             }
 
 			bool parsingResult = Enum.TryParse(section, out BookSection bs);

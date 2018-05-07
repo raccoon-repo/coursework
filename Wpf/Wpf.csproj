@@ -61,6 +61,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Appl\Gui\DeleteDialogWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Appl\Gui\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -77,6 +81,9 @@
     <Compile Include="Appl\DTO\BookDto.cs" />
     <Compile Include="Appl\Gui\BookWindow.xaml.cs">
       <DependentUpon>BookWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Appl\Gui\DeleteDialogWindow.xaml.cs">
+      <DependentUpon>DeleteDialogWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Appl\Gui\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

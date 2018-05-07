@@ -4,6 +4,9 @@ namespace BookLibrary.Xml.Utils
 {
     public interface IBookCounter
     {
+
+        bool IsPresent(int bookId);
+
         int Count(int bookId);
         void SetCount(int bookId, int count);
 

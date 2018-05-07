@@ -1,0 +1,30 @@
+﻿<Window x:Class="Wpf.Appl.Gui.DeleteDialogWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Wpf.Appl.Gui"
+        mc:Ignorable="d"
+        Title="DeleteDialogWindow" Height="125" Width="150">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <TextBlock Text="Are You Shure?" Width="80" Height="20"/>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0" Height="30" Width="50" Content="Yes" Click="Yes_Button_Click"/>
+            <Button Grid.Column="1" Height="30" Width="50" Content="No" Click="No_Button_Click"/>
+        </Grid>
+        
+    </Grid>
+</Window>

@@ -44,9 +44,9 @@
         </Grid>
         
         <StackPanel Grid.Row="2" Orientation="Horizontal">
-            <Button Margin="5 5 5 5" Height="22" Width="70" Content="Done" Click="Done_Button_Click"/>
             <RadioButton Margin="5 10 5 5" x:Name="newAuthorRadioButton" GroupName="Author" Content="New Author" IsChecked="True"/>
             <RadioButton Margin="5 10 5 5" x:Name="selectedAuthorRadioButton" GroupName="Author" Content="Selected Author"/>
+            <Button Margin="5 5 5 5" Height="22" Width="70" Content="Done" Click="Done_Button_Click"/>
         </StackPanel>
         
     </Grid>

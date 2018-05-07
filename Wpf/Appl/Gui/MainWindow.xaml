@@ -39,6 +39,13 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
+                                    <DataGridTextColumn Width="*" Header="Section" Binding="{Binding Path=Section}">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style>
+                                                <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
                                     <DataGridTextColumn Width="50"  Header="Rating" Binding="{Binding Path=Rating}">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style>
@@ -72,11 +79,135 @@
                 <TabItem.Header>
                     <TextBlock>By Section</TextBlock>
                 </TabItem.Header>
+
+                <TabItem.Content>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="0.1*"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                        <ComboBox x:Name="sectionComboBox"  Grid.Row="0" SelectedValuePath="Content" SelectionChanged="Section_Selection_Changed">
+                            <ComboBoxItem x:Name="FICTION">Fiction</ComboBoxItem>
+                            <ComboBoxItem x:Name="ART">Art</ComboBoxItem>
+                            <ComboBoxItem x:Name="HOBBY">Hobby</ComboBoxItem>
+                            <ComboBoxItem x:Name="SELF_DEVELOPMENT">Self Development</ComboBoxItem>
+                            <ComboBoxItem x:Name="ECONOMY">Economy</ComboBoxItem>
+                            <ComboBoxItem x:Name="SCIENCE">Science</ComboBoxItem>
+                            <ComboBoxItem x:Name="FOREIGN_LANGUAGES">Foreign Languages</ComboBoxItem>
+                            <ComboBoxItem x:Name="PROGRAMMING">Programming</ComboBoxItem>
+                            <ComboBoxItem x:Name="TECHNOLOGIES">Technologies</ComboBoxItem>
+                            <ComboBoxItem x:Name="COOKERY">Cookery</ComboBoxItem>
+                            <ComboBoxItem x:Name="TRAVELS">Travels</ComboBoxItem>
+                            <ComboBoxItem x:Name="DOCUMENTARY">Documentary</ComboBoxItem>
+                            <ComboBoxItem x:Name="HISTORY">History</ComboBoxItem>
+                            <ComboBoxItem x:Name="OTHER">Other</ComboBoxItem>
+                        </ComboBox>
+
+                        <ScrollViewer Grid.Row="1">
+                            <DataGrid Grid.Row="1" IsReadOnly="True" x:Name="allBooksBySection" 
+                                  CanUserAddRows="False" AutoGenerateColumns="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Id" Width="50" Binding="{Binding Path=Id}"/>
+                                    <DataGridTextColumn Header="Title" Width="*" Binding="{Binding Path=Title}"/>
+                                    <DataGridTextColumn Header="Section" Width="*" Binding="{Binding Path=Section}"/>
+                                    <DataGridTextColumn Header="Rating" Width="50" Binding="{Binding Path=Rating}"/>
+                                    <DataGridTextColumn Header="Count" Width="50" Binding="{Binding Path=Quantity}"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </ScrollViewer>
+                        
+                    </Grid>
+                </TabItem.Content>
             </TabItem>
             <TabItem>
                 <TabItem.Header>
                     <TextBlock>Advanced Search</TextBlock>
                 </TabItem.Header>
+                <TabItem.Content>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.4*"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Grid.Column="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition/>
+                                <RowDefinition Height="20"/>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0" Height="20" Margin="5 5 5 5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="44"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" Text="Title:"/>
+                                <TextBox Grid.Column="1"/>
+                            </Grid>
+                            <Grid Grid.Row="1" Height="20" Margin="5 5 5 5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="44"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Rating:"/>
+                                <TextBox Grid.Column="1"/>
+                            </Grid>
+                            <Grid Grid.Row="2" Height="20" Margin="5 5 5 5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="44"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Section:"/>
+                                <ComboBox x:Name="searchBySection" Grid.Column="1">
+                                    <ComboBoxItem>Fiction</ComboBoxItem>
+                                    <ComboBoxItem>Art</ComboBoxItem>
+                                    <ComboBoxItem>Hobby</ComboBoxItem>
+                                    <ComboBoxItem>Self Development</ComboBoxItem>
+                                    <ComboBoxItem>Economy</ComboBoxItem>
+                                    <ComboBoxItem>Science</ComboBoxItem>
+                                    <ComboBoxItem>Foreign Languages</ComboBoxItem>
+                                    <ComboBoxItem>Programming</ComboBoxItem>
+                                    <ComboBoxItem>Technologies</ComboBoxItem>
+                                    <ComboBoxItem>Cookery</ComboBoxItem>
+                                    <ComboBoxItem>Travels</ComboBoxItem>
+                                    <ComboBoxItem>Documentary</ComboBoxItem>
+                                    <ComboBoxItem>History</ComboBoxItem>
+                                    <ComboBoxItem>Other</ComboBoxItem>
+                                </ComboBox>
+                            </Grid>
+
+                            <Grid Grid.Row="3">
+                                <ScrollViewer>
+                                    <DataGrid x:Name="searchByAuthor" IsReadOnly="True" CanUserAddRows="False"
+                                              Loaded="Search_By_Author_Loaded">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Id" Width="20" Binding="{Binding Path=Id}"/>
+                                            <DataGridTextColumn Header="First Name" Width="*" Binding="{Binding Path=FirstName}"/>
+                                            <DataGridTextColumn Header="Last Name" Width="*" Binding="{Binding Path=LastName}"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </ScrollViewer>
+                            </Grid>
+                            <Button Grid.Row="4" Width="40" Content="Search" Click="Search_Button_Click"/>
+                        </Grid>
+
+                        <ScrollViewer Grid.Column="1">
+                            <DataGrid x:Name="Search_Result_Grid" IsReadOnly="True">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Id" Width="25" Binding="{Binding Path=Id}"/>
+                                    <DataGridTextColumn Header="Title" Width="*" Binding="{Binding Path=Title}"/>
+                                    <DataGridTextColumn Header="Section" Width="*" Binding="{Binding Path=Section}"/>
+                                    <DataGridTextColumn Header="Rating" Width="50" Binding="{Binding Path=Rating}"/>
+                                    <DataGridTextColumn Header="Count" Width="50" Binding="{Binding Path=Count}"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </ScrollViewer>
+                    </Grid>
+                </TabItem.Content>
             </TabItem>
         </TabControl>
     </Grid>

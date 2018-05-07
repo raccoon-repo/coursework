@@ -1,4 +1,5 @@
-﻿using BookLibrary.Xml.Impl.Dao;
+﻿using BookLibrary.Entities;
+using BookLibrary.Xml.Impl.Dao;
 using System;
 
 namespace BookLibrary.Xml.Utils.Impl
@@ -19,6 +20,9 @@ namespace BookLibrary.Xml.Utils.Impl
 
         public void Increment(int bookId)
         {
+            if (!IsPresent(bookId))
+                return;
+
             var xDoc = _documentHolder.Document;
             var root = xDoc.DocumentElement;
 
@@ -31,6 +35,9 @@ namespace BookLibrary.Xml.Utils.Impl
 
         public void Decrement(int bookId)
         {
+            if (!IsPresent(bookId))
+                return;
+
             var xDoc = _documentHolder.Document;
             var root = xDoc.DocumentElement;
 
@@ -47,6 +54,9 @@ namespace BookLibrary.Xml.Utils.Impl
 
         public int Count(int bookId)
         {
+            if (!IsPresent(bookId))
+                return 0;
+
             var xDoc = _documentHolder.Document;
             var root = xDoc.DocumentElement;
 
@@ -58,10 +68,16 @@ namespace BookLibrary.Xml.Utils.Impl
 
         public void SetCount(int bookId, int count)
         {
+            if (!IsPresent(bookId))
+                return;
+
             var xDoc = _documentHolder.Document;
             var root = xDoc.DocumentElement;
 
             var countNode = root.SelectSingleNode("entry[bookId = '" + bookId + "']/count");
+
+            if (count < 0)
+                count = 0;
 
             countNode.FirstChild.Value = count.ToString();
 
@@ -79,6 +95,8 @@ namespace BookLibrary.Xml.Utils.Impl
             bookIdNode.AppendChild(xDoc.CreateTextNode(bookId.ToString()));
 
             var countNode = xDoc.CreateElement("count");
+            if (count < 0)
+                count = 0;
             countNode.AppendChild(xDoc.CreateTextNode(count.ToString()));
 
             entryNode.AppendChild(bookIdNode);
@@ -101,6 +119,18 @@ namespace BookLibrary.Xml.Utils.Impl
 
             xDoc.Save(_documentHolder.Path);
 
+        }
+
+        public bool IsPresent(int bookId)
+        {
+            var xDoc = _documentHolder.Document;
+            var root = xDoc.DocumentElement;
+
+            var countNode = root.SelectSingleNode("entry[bookId ='" + bookId + "']");
+
+            if (countNode == null)
+                return false;
+            return true;
         }
     }
 }

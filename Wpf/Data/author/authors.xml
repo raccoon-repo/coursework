@@ -22,6 +22,22 @@
     <lastName>Penrose</lastName>
     <books>
       <id>5</id>
+      <id>6</id>
+    </books>
+  </author>
+  <author id="4">
+    <firstName>Walter</firstName>
+    <lastName>White</lastName>
+    <books>
+      <id>6</id>
+    </books>
+  </author>
+  <author id="5">
+    <firstName>Linkin</firstName>
+    <lastName>Park</lastName>
+    <books>
+      <id>7</id>
+      <id>8</id>
     </books>
   </author>
 </authors>
