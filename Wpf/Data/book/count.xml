@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<entries>
+  <entry>
+    <bookId>1</bookId>
+    <count>1</count>
+  </entry>
+  <entry>
+    <bookId>2</bookId>
+    <count>3</count>
+  </entry>
+  <entry>
+    <bookId>3</bookId>
+    <count>4</count>
+  </entry>
+  <entry>
+    <bookId>4</bookId>
+    <count>0</count>
+  </entry>
+  <entry>
+    <bookId>5</bookId>
+    <count>2</count>
+  </entry>
+</entries>

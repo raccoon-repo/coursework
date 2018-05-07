@@ -5,7 +5,7 @@ using System.Xml;
 using BookLibrary.Core.Dao;
 using BookLibrary.Entities;
 using BookLibrary.Entities.Proxies;
-using BookLibrary.Xml.Impl.Utils;
+using BookLibrary.Xml.Utils;
 
 namespace BookLibrary.Xml.Impl.Dao
 {

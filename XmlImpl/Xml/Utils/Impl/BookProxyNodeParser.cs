@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Xml;
 using BookLibrary.Core.Dao;
 using BookLibrary.Entities;
 using BookLibrary.Entities.Proxies;
 
-namespace BookLibrary.Xml.Impl.Utils.Impl
+namespace BookLibrary.Xml.Utils.Impl
 {
     
     /* Responsible for parsing XmlNode
@@ -30,7 +31,7 @@ namespace BookLibrary.Xml.Impl.Utils.Impl
 
 
             var id = int.Parse(idValue);
-            var rating = ratingValue == null ? 1.0f : float.Parse(ratingValue);
+            var rating = ratingValue == null ? 1.0f : float.Parse(ratingValue, CultureInfo.InvariantCulture);
             var section = BookLibrary.BookUtils.ParseSection(sectionValue);
 
             return new BookProxy(id, title, rating, section, description)

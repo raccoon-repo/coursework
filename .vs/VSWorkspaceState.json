@@ -3,9 +3,8 @@
     "",
     "\\BookLibrary",
     "\\BookLibrary\\BookLibrary",
-    "\\DaoTest",
     "\\DatabaseImpl"
   ],
-  "SelectedNode": "\\DaoTest\\DaoTest.csproj",
+  "SelectedNode": "\\BookLibrary\\BookLibrary",
   "PreviewInSolutionExplorer": false
 }

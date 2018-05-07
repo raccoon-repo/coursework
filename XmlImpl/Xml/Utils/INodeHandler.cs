@@ -1,6 +1,6 @@
 ﻿using System.Xml;
 
-namespace BookLibrary.Xml.Impl.Utils
+namespace BookLibrary.Xml.Utils
 {
     /* Responsible for handling information about
      * books inside author node and vice versa

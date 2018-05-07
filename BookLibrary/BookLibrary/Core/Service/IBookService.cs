@@ -15,6 +15,7 @@ namespace BookLibrary.Core.Service
 
 		void SaveOrUpdate(Book book);
 		void Delete(Book book);
+        void Delete(int id);
 		void Refresh(Book book);
 	}
 }

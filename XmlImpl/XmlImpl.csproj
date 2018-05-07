@@ -44,11 +44,13 @@
     <Compile Include="Xml\Impl\Dao\DocumentHolder.cs" />
     <Compile Include="Xml\Impl\Dao\XmlAuthorDao.cs" />
     <Compile Include="Xml\Impl\Dao\XmlBookDao.cs" />
-    <Compile Include="Xml\Impl\Utils\Impl\AuthorProxyNodeParser.cs" />
-    <Compile Include="Xml\Impl\Utils\Impl\BookProxyNodeParser.cs" />
-    <Compile Include="Xml\Impl\Utils\Impl\NodeHandler.cs" />
-    <Compile Include="Xml\Impl\Utils\INodeHandler.cs" />
-    <Compile Include="Xml\Impl\Utils\INodeParser.cs" />
+    <Compile Include="Xml\Utils\IBookCounter.cs" />
+    <Compile Include="Xml\Utils\Impl\AuthorProxyNodeParser.cs" />
+    <Compile Include="Xml\Utils\Impl\BookCounter.cs" />
+    <Compile Include="Xml\Utils\Impl\BookProxyNodeParser.cs" />
+    <Compile Include="Xml\Utils\Impl\NodeHandler.cs" />
+    <Compile Include="Xml\Utils\INodeHandler.cs" />
+    <Compile Include="Xml\Utils\INodeParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BookLibrary\BookLibrary.csproj">

@@ -285,24 +285,26 @@ namespace BookLibrary.Database.Impl.Dao
 			}
 		}
 
+        public void Delete(int id)
+        {
+            var args = new Dictionary<string, string> {
+                    { "@id", id.ToString() }
+                };
+
+            // Delete from book table
+            _dBWorker.ExecuteNonQuery(Books.DELETE, args);
+
+            // Delete all rows in the intermediate table
+            // that have book_id column value equals to @id
+            _dBWorker.ExecuteNonQuery(JoinTable.DELETE_BY_BOOK, args);
+
+            // Remove it from cache
+            cache.TryRemove(id, out _);
+        }
+
 		public void Delete(Book book)
 		{
-			if (book is BookProxy) {
-
-				var args = new Dictionary<string, string> {
-					{ "@id", book.Id.ToString() }
-				};
-
-				// Delete from book table
-				_dBWorker.ExecuteNonQuery(Books.DELETE, args);
-
-				// Delete all rows in the intermediate table
-				// that have book_id column value equals to @id
-				_dBWorker.ExecuteNonQuery(JoinTable.DELETE_BY_BOOK, args);
-
-				// Remove it from cache
-				cache.TryRemove(book.Id, out _);
-			}
+            Delete(book.Id);
 		}
 
 		/* ----- ---------------------------------------------------------------------- ----- */

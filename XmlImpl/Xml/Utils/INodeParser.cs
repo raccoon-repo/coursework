@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml;
 
-namespace BookLibrary.Xml.Impl.Utils
+namespace BookLibrary.Xml.Utils
 {
     public interface INodeParser<T>
     {

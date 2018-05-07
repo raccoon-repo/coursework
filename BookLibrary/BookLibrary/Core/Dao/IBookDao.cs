@@ -34,5 +34,6 @@ namespace BookLibrary.Core.Dao
 
 		Book Refresh(Book book); 
 		void Delete(Book book);
+        void Delete(int id);
 	}
 }

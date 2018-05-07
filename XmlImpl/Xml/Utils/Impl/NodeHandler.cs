@@ -1,7 +1,7 @@
 ﻿using System.Xml;
 using BookLibrary.Xml.Impl.Dao;
 
-namespace BookLibrary.Xml.Impl.Utils.Impl
+namespace BookLibrary.Xml.Utils.Impl
 {
     public class NodeHandler : INodeHandler
     {

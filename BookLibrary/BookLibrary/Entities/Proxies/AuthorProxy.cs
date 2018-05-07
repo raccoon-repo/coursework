@@ -48,7 +48,7 @@ namespace BookLibrary.Entities.Proxies
 
 		public bool BooksAreFetchedOrSet => _booksAreFetchedOrSet;
 
-		public override ISet<Book> Books {
+		public override IList<Book> Books {
 			get {
 				if(!_booksAreFetchedOrSet) 
 				{
@@ -63,8 +63,7 @@ namespace BookLibrary.Entities.Proxies
 		private void FetchBooks()
 		{
 			_booksAreFetchedOrSet = true;
-			base.Books = new HashSet<Book>(
-				_bookDao.FindByAuthor(this));
+			base.Books = _bookDao.FindByAuthor(this);
 		}
 
 		public override void AddBook(Book book)

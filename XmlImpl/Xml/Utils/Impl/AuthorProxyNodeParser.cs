@@ -5,7 +5,7 @@ using BookLibrary.Core.Dao;
 using BookLibrary.Entities;
 using BookLibrary.Entities.Proxies;
 
-namespace BookLibrary.Xml.Impl.Utils.Impl
+namespace BookLibrary.Xml.Utils.Impl
 {
     
     /* Responsible for parsing XmlNode into

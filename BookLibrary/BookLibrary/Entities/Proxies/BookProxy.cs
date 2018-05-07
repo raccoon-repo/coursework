@@ -60,7 +60,7 @@ namespace BookLibrary.Entities.Proxies
 	        set => _authorDao = value;
         }		
 
-		public override ISet<Author> Authors
+		public override IList<Author> Authors
 		{
 			get 
 			{
@@ -101,8 +101,7 @@ namespace BookLibrary.Entities.Proxies
 		private void FetchAuthors()
 		{
 			_authorsAreFetchedOrSet = true;
-			base.Authors = new HashSet<Author>(
-				_authorDao.FindByBook(this));
+			base.Authors = _authorDao.FindByBook(this);
 		}
 
 		public bool AuthorsAreFetchedOrSet 

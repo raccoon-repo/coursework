@@ -20,7 +20,12 @@ namespace BookLibrary.Service
 			_bookDao.Delete(book);
 		}
 
-		public IList<Book> FindAll()
+        public void Delete(int id)
+        {
+            _bookDao.Delete(id);
+        }
+
+        public IList<Book> FindAll()
 		{
 			return _bookDao.FindAll();
 		}

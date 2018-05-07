@@ -1,0 +1,53 @@
+﻿<Window x:Class="Wpf.Appl.Gui.AddAuthorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Wpf.Appl.Gui"
+        mc:Ignorable="d"
+        Title="AddAuthorWindow" Height="400" Width="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="68"/>
+            <RowDefinition/>
+            <RowDefinition Height="0.12*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="34"/>
+                <RowDefinition Height="34"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock FontSize="12" Margin="5 5 5 5" Text="First Name: " Grid.Row="0" Grid.Column="0"/>
+            <TextBox Margin="5 -1 5 5" Height="18" x:Name="firstNameTextBox" Grid.Row="0" Grid.Column="1"/>
+
+            <TextBlock FontSize="12" Margin="5 5 5 5" Text="Last Name: " Grid.Row="1" Grid.Column="0"/>
+            <TextBox Margin="5 -1 5 5" Height="18" x:Name="lastNameTextBox" Grid.Row="1" Grid.Column="1"/>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <ScrollViewer Margin="5 5 5 5">
+                <DataGrid x:Name="allAuthorsDataGrid" IsReadOnly="True" 
+                          AutoGenerateColumns="False" Loaded="Data_Grid_Loaded">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Id" Width="0.1*" Binding="{Binding Path=Id}"/>
+                        <DataGridTextColumn Header="First Name" Width="0.45*" Binding="{Binding Path=FirstName}"/>
+                        <DataGridTextColumn Header="Last Name" Width="0.45*" Binding="{Binding Path=LastName}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </ScrollViewer>
+        </Grid>
+        
+        <StackPanel Grid.Row="2" Orientation="Horizontal">
+            <Button Margin="5 5 5 5" Height="22" Width="70" Content="Done" Click="Done_Button_Click"/>
+            <RadioButton Margin="5 10 5 5" x:Name="newAuthorRadioButton" GroupName="Author" Content="New Author" IsChecked="True"/>
+            <RadioButton Margin="5 10 5 5" x:Name="selectedAuthorRadioButton" GroupName="Author" Content="Selected Author"/>
+        </StackPanel>
+        
+    </Grid>
+</Window>

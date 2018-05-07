@@ -7,7 +7,7 @@ namespace BookLibrary.Entities
 		private int _id = 0;
 		private string _firstName = "";
 		private string _lastName = "";
-		private ISet<Book> _books = new HashSet<Book>();
+		private IList<Book> _books = new List<Book>();
 
 		public Author() { }
 		public Author(string firstName, string lastName)
@@ -40,7 +40,7 @@ namespace BookLibrary.Entities
 			get => _lastName;
 			set => _lastName = value;
 		}
-		public virtual ISet<Book> Books
+		public virtual IList<Book> Books
 		{
 			get => _books;
 			set => _books = value;

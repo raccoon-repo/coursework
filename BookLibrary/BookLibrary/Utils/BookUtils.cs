@@ -8,6 +8,12 @@ namespace BookLibrary
 		public static BookSection ParseSection(string section)
 		{
 			section = section.ToUpper().Trim();
+
+            if (section.Contains(" "))
+            {
+                section.Replace(" ", "_");
+            }
+
 			bool parsingResult = Enum.TryParse(section, out BookSection bs);
 
 			if (!parsingResult) {

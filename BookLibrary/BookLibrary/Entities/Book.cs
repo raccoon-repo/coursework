@@ -7,7 +7,7 @@ namespace BookLibrary.Entities
 		private int _id = 0;
 
 		private string _title;
-		private ISet<Author> _authors = new HashSet<Author>();
+		private IList<Author> _authors = new List<Author>();
 		private BookSection _section;
 		private string _description;
 		private float _rating = 0.0f;
@@ -57,7 +57,7 @@ namespace BookLibrary.Entities
 			set => _rating = value;
 		}
 
-		public virtual ISet<Author> Authors
+		public virtual IList<Author> Authors
         {
 			get => _authors;
 			set => _authors = value;

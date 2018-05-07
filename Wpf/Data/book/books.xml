@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<books>
+  <book id="1">
+    <title>God Delusion</title>
+    <section>DOCUMENTARY</section>
+    <description>The God Delusion is a 2006 best-selling non-fiction book by English biologist Richard Dawkins, a professorial fellow at New College, Oxford and former holder of the Charles Simonyi Chair for the Public Understanding of Science at the University of Oxford.</description>
+    <rating>9.2</rating>
+    <authors>
+      <id>1</id>
+    </authors>
+  </book>
+  <book id="2">
+    <title>The Selfish Gene</title>
+    <section>SCIENCE</section>
+    <description>The Selfish Gene is a 1976 book on evolution by Richard Dawkins, in which the author builds upon the principal theory of George C. Williams's Adaptation and Natural Selection (1966). Dawkins uses the term "selfish gene" as a way of expressing the gene-centred view of evolution as opposed to the views focused on the organism and the group, popularising ideas developed during the 1960s by W. D. Hamilton and others. From the gene-centred view, it follows that the more two individuals are genetically related, the more sense (at the level of the genes) it makes for them to behave selflessly with each other.
+    </description>
+    <rating>9.5</rating>
+    <authors>
+      <id>1</id>
+    </authors>
+  </book>
+  <book id="3">
+    <title>The Blind Watchmaker</title>
+    <section>SCIENCE</section>
+    <description>The Blind Watchmaker: Why the Evidence of Evolution Reveals a Universe without Design is a 1986 book by Richard Dawkins, in which the author presents an explanation of, and argument for, the theory of evolution by means of natural selection. He also presents arguments to refute certain criticisms made on his first book, The Selfish Gene. (Both books espouse the gene-centric view of evolution.) An unabridged audiobook edition was released in 2011, narrated by Richard Dawkins and Lalla Ward.</description>
+    <rating>9.0</rating>
+    <authors>
+      <id>1</id>
+    </authors>
+  </book>
+  <book id="4">
+    <title>A Brief History of Time</title>
+    <section>SCIENCE</section>
+    <description>A Brief History of Time: From the Big Bang to Black Holes is a popular-book on cosmology (the study of the universe) by British physicist Stephen Hawking. It was first published in 1988. Hawking wrote the book for nonspecialist readers with no prior knowledge of scientific theories</description>
+    <rating>9.8</rating>
+    <authors>
+      <id>2</id>
+    </authors>
+  </book>
+  <book id="5">
+    <title>The Nature of Space and Time</title>
+    <section>OTHER</section>
+    <description>The Nature of Space and Time is a book that documents a debate on physics and the philosophy of physics between the British theoretical physicists Roger Penrose and Stephen Hawking. The book was published by Princeton University Press in 1996. The event that is featured in the book took place in 1994 at the University of Cambridge's Isaac Newton Institute The debate was modeled on the series of debates between Albert Einstein and Niels Bohr.</description>
+    <rating>8.5</rating>
+    <authors>
+      <id>2</id>
+      <id>3</id>
+    </authors>
+  </book>
+</books>

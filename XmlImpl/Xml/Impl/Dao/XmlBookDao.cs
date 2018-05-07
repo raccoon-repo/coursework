@@ -5,7 +5,7 @@ using System.Xml;
 using BookLibrary.Core.Dao;
 using BookLibrary.Entities;
 using BookLibrary.Entities.Proxies;
-using BookLibrary.Xml.Impl.Utils;
+using BookLibrary.Xml.Utils;
 
 namespace BookLibrary.Xml.Impl.Dao
 {
@@ -301,6 +301,7 @@ namespace BookLibrary.Xml.Impl.Dao
 
         }
 
+
         public Book Refresh(Book book)
         {
             if (book.Id <= 0)
@@ -327,25 +328,47 @@ namespace BookLibrary.Xml.Impl.Dao
             return temp;
         }
 
-        public void Delete(Book book)
+        public void Delete(int id)
         {
-            if (book.Id <= 0)
+            if (id <= 0)
                 return;
 
+            var xDoc = DocumentHolder.Document;
+            var root = xDoc.DocumentElement;
+
+            var book = FindById(id);
 
             foreach (var author in book.Authors)
             {
                 NodeHandler.RemoveBookFromAuthor(book.Id, author.Id);
             }
-            
+
+            var bookNode = root.SelectSingleNode("book[@id ='" + id + "']");
+            root.RemoveChild(bookNode);
+
+            cache.TryRemove(id, out _);
+
+            xDoc.Save(DocumentHolder.Path);
+        }
+
+        public void Delete(Book book)
+        {
+            if (book.Id <= 0)
+                return;
+
             var xDoc = DocumentHolder.Document;
             var root = xDoc.DocumentElement;
+
+            foreach (var author in book.Authors)
+            {
+                NodeHandler.RemoveBookFromAuthor(book.Id, author.Id);
+            }
 
             var bookNode = root.SelectSingleNode("book[@id ='" + book.Id + "']");
             root.RemoveChild(bookNode);
 
             cache.TryRemove(book.Id, out _);
-            
+
             xDoc.Save(DocumentHolder.Path);
         }
 
