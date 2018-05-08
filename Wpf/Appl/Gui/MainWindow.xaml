@@ -15,8 +15,8 @@
                 <TabItem.Content>
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="93*"/>
-                            <RowDefinition Height="7*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="25"/>
                         </Grid.RowDefinitions>
 
                         <ScrollViewer>
@@ -67,10 +67,10 @@
                         </ScrollViewer>
 
                         <StackPanel Grid.Row="1" Orientation="Horizontal">
-                            <Button Width="70" Content="Edit" Click="Edit_Button_Click"/>
+                            <Button Width="70" Content="Edit" Click="Edit_Book"/>
                             <Button Width="70" Content="New Book" Click="New_Book_Button_Click"/>
                             <Button Width="70" Content="Remove" Click="Remove_Button_Click"/>
-                            <Button Width="70" Content="Update" Click="Update_Button_Click"/>
+                            <Button Width="70" Content="Update" Click="Update_All_Books_Data_Grid"/>
                         </StackPanel>
                     </Grid>
                 </TabItem.Content>
@@ -83,7 +83,7 @@
                 <TabItem.Content>
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="0.1*"/>
+                            <RowDefinition Height="30"/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
 
@@ -134,10 +134,10 @@
                         <Grid Grid.Column="0">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="30"/>
-                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="60"/>
                                 <RowDefinition Height="30"/>
                                 <RowDefinition/>
-                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="25"/>
                             </Grid.RowDefinitions>
                             <Grid Grid.Row="0" Height="20" Margin="5 5 5 5">
                                 <Grid.ColumnDefinitions>
@@ -146,15 +146,29 @@
                                 </Grid.ColumnDefinitions>
 
                                 <TextBlock Grid.Column="0" Text="Title:"/>
-                                <TextBox Grid.Column="1"/>
+                                <TextBox x:Name="searchByTitle" Grid.Column="1"/>
                             </Grid>
-                            <Grid Grid.Row="1" Height="20" Margin="5 5 5 5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="44"/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Rating:"/>
-                                <TextBox Grid.Column="1"/>
+                            <Grid Grid.Row="1" Margin="5 5 5 5">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <TextBlock TextAlignment="Center" Text="Rating"/>
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="44"/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <TextBlock Grid.Column="0" Text="From:"/>
+                                    <TextBox x:Name="searchByRatingFrom" Grid.Column="1"/>
+                                    <TextBlock Margin="5 0 0 0" Grid.Column="2" Text="To:"/>
+                                    <TextBox x:Name="searchByRatingTo" Grid.Column="3"/>
+                                </Grid>
                             </Grid>
                             <Grid Grid.Row="2" Height="20" Margin="5 5 5 5">
                                 <Grid.ColumnDefinitions>
@@ -183,7 +197,7 @@
                             <Grid Grid.Row="3">
                                 <ScrollViewer>
                                     <DataGrid x:Name="searchByAuthor" IsReadOnly="True" CanUserAddRows="False"
-                                              Loaded="Search_By_Author_Loaded">
+                                              Loaded="Search_By_Author_Loaded" AutoGenerateColumns="False">
                                         <DataGrid.Columns>
                                             <DataGridTextColumn Header="Id" Width="20" Binding="{Binding Path=Id}"/>
                                             <DataGridTextColumn Header="First Name" Width="*" Binding="{Binding Path=FirstName}"/>
@@ -192,20 +206,30 @@
                                     </DataGrid>
                                 </ScrollViewer>
                             </Grid>
-                            <Button Grid.Row="4" Width="40" Content="Search" Click="Search_Button_Click"/>
+                            <Button Grid.Row="4" HorizontalAlignment="Left" Width="40" Content="Search" Click="Search_Button_Click"/>
                         </Grid>
 
-                        <ScrollViewer Grid.Column="1">
-                            <DataGrid x:Name="Search_Result_Grid" IsReadOnly="True">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Id" Width="25" Binding="{Binding Path=Id}"/>
-                                    <DataGridTextColumn Header="Title" Width="*" Binding="{Binding Path=Title}"/>
-                                    <DataGridTextColumn Header="Section" Width="*" Binding="{Binding Path=Section}"/>
-                                    <DataGridTextColumn Header="Rating" Width="50" Binding="{Binding Path=Rating}"/>
-                                    <DataGridTextColumn Header="Count" Width="50" Binding="{Binding Path=Count}"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </ScrollViewer>
+                        <Grid Grid.Column="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition Height="25"/>
+                            </Grid.RowDefinitions>
+                            <ScrollViewer Grid.Row="0">
+                                <DataGrid x:Name="searchResultGrid" IsReadOnly="True" AutoGenerateColumns="False">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Id" Width="25" Binding="{Binding Path=Id}"/>
+                                        <DataGridTextColumn Header="Title" Width="*" Binding="{Binding Path=Title}"/>
+                                        <DataGridTextColumn Header="Section" Width="*" Binding="{Binding Path=Section}"/>
+                                        <DataGridTextColumn Header="Rating" Width="50" Binding="{Binding Path=Rating}"/>
+                                        <DataGridTextColumn Header="Count" Width="50" Binding="{Binding Path=Quantity}"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </ScrollViewer>
+                            <StackPanel Orientation="Horizontal" Grid.Row="1">
+                                <Button Grid.Row="1" HorizontalAlignment="Left" Width="70" Content="Edit" Click="Edit_Found_Book"/>
+                                <Button Grid.Row="1" HorizontalAlignment="Left" Width="70" Content="Update" Click="Update_Search_Result_Grid"/>
+                            </StackPanel>
+                        </Grid>
                     </Grid>
                 </TabItem.Content>
             </TabItem>

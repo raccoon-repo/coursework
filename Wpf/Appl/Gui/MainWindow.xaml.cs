@@ -35,15 +35,22 @@ namespace Wpf.Appl.Gui
             allBooksDataGrid.ItemsSource = data;  
         }
 
-        private void Edit_Button_Click(object sender, RoutedEventArgs args)
+        private void Edit_Book(object sender, RoutedEventArgs args)
         {
-            if (allBooksDataGrid.SelectedItem is null)
-            {
-                MessageBox.Show("Select book");
-                return;
-            }
+            Edit_Book(allBooksDataGrid);
+        }
 
-            BookDto bookDto = (BookDto)allBooksDataGrid.SelectedItem;
+        private void Edit_Found_Book(object sender, RoutedEventArgs args)
+        {
+            Edit_Book(searchResultGrid);
+        }
+
+        private void Edit_Book(DataGrid dataGrid)
+        {
+            if (dataGrid.SelectedItem is null)
+                return;
+
+            BookDto bookDto = (BookDto)dataGrid.SelectedItem;
             BookWindow editBookWindow = new BookWindow
             {
                 Book = BookService.FindById(bookDto.Id),
@@ -54,7 +61,7 @@ namespace Wpf.Appl.Gui
 
 
             editBookWindow.ShowDialog();
-            allBooksDataGrid.Items.Refresh();
+            dataGrid.Items.Refresh();
         }
 
         private void New_Book_Button_Click(object sender, RoutedEventArgs args)
@@ -91,15 +98,25 @@ namespace Wpf.Appl.Gui
             BookService.Delete(dto.Id);
         }
 
-        private void Update_Button_Click(object sender, RoutedEventArgs args)
+        private void Update_All_Books_Data_Grid(object sender, RoutedEventArgs args)
+        {
+            Update(allBooksDataGrid);
+        }
+
+        private void Update_Search_Result_Grid(object sender, RoutedEventArgs args)
+        {
+            Search();
+        }
+
+        private void Update(DataGrid dataGrid)
         {
             BookDtoConverter dtoConverter = new BookDtoConverter {
                 BookCounter = BookCounter
             };
-            allBooksDataGrid.ItemsSource = dtoConverter.ConvertBooks(BookService.FindAll());
+
+            dataGrid.ItemsSource = dtoConverter.ConvertBooks(BookService.FindAll());
+            dataGrid.Items.Refresh();
         }
-
-
 
         private void Section_Selection_Changed(object sender, RoutedEventArgs args)
         {
@@ -117,12 +134,65 @@ namespace Wpf.Appl.Gui
 
         private void Search_By_Author_Loaded(object sender, RoutedEventArgs args)
         {
+            searchByAuthor.ItemsSource = AuthorService.FindAll();
+        }
 
+        private void Search()
+        {
+            var ratingFromStr = searchByRatingFrom.Text;
+            var ratingToStr = searchByRatingTo.Text;
+            var title = searchByTitle.Text;
+            var section = searchBySection.Text;
+            var author = (Author)searchByAuthor.SelectedItem;
+            float ratingFrom;
+            float ratingTo;
+            IList<Book> temp;
+            IList<BookDto> result = new List<BookDto>();
+            BookDtoConverter converter = new BookDtoConverter
+            {
+                BookCounter = BookCounter
+            };
+
+            if (ratingFromStr.Length != 0 && ratingToStr.Length != 0)
+            {
+                if (!float.TryParse(ratingFromStr, out ratingFrom) || !float.TryParse(ratingToStr, out ratingTo))
+                {
+                    MessageBox.Show("Enter the valid value of rating");
+                    return;
+                }
+                temp = BookService.FindByRating(ratingFrom, ratingTo);
+
+                foreach (var book in temp)
+                    result.Add(converter.ConvertBook(book));
+            }
+
+
+
+            if (!(author is null))
+            {
+                foreach (var book in author.Books)
+                    result.Add(converter.ConvertBook(book));
+            }
+
+            temp = BookService.FindByTitle(title);
+            foreach (var book in temp)
+                result.Add(converter.ConvertBook(book));
+
+
+            if (section.Length != 0)
+            {
+                temp = BookService.FindBySection(BookUtils.ParseSection(section));
+                foreach (var book in temp)
+                    result.Add(converter.ConvertBook(book));
+            }
+
+            searchResultGrid.ItemsSource = result;
+            searchResultGrid.Items.Refresh();
         }
 
         private void Search_Button_Click(object sender, RoutedEventArgs args)
         {
-
+            Search();
         }
     }
 }

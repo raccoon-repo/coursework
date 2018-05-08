@@ -21,9 +21,9 @@
   </book>
   <book id="3">
     <title>The Blind Watchmaker</title>
-    <section>SCIENCE</section>
+    <section>FICTION</section>
     <description>The Blind Watchmaker: Why the Evidence of Evolution Reveals a Universe without Design is a 1986 book by Richard Dawkins, in which the author presents an explanation of, and argument for, the theory of evolution by means of natural selection. He also presents arguments to refute certain criticisms made on his first book, The Selfish Gene. (Both books espouse the gene-centric view of evolution.) An unabridged audiobook edition was released in 2011, narrated by Richard Dawkins and Lalla Ward.</description>
-    <rating>9.0</rating>
+    <rating>9</rating>
     <authors>
       <id>1</id>
     </authors>
