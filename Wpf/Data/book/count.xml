@@ -2,7 +2,7 @@
 <entries>
   <entry>
     <bookId>1</bookId>
-    <count>1</count>
+    <count>0</count>
   </entry>
   <entry>
     <bookId>2</bookId>
@@ -29,7 +29,15 @@
     <count>5</count>
   </entry>
   <entry>
-    <bookId>8</bookId>
-    <count>0</count>
+    <bookId>11</bookId>
+    <count>20</count>
+  </entry>
+  <entry>
+    <bookId>12</bookId>
+    <count>1</count>
+  </entry>
+  <entry>
+    <bookId>13</bookId>
+    <count>1</count>
   </entry>
 </entries>

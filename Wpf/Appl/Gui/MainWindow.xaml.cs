@@ -96,6 +96,7 @@ namespace Wpf.Appl.Gui
 
             BookDto dto = (BookDto) allBooksDataGrid.SelectedItem;
             BookService.Delete(dto.Id);
+            BookCounter.Remove(dto.Id);
         }
 
         private void Update_All_Books_Data_Grid(object sender, RoutedEventArgs args)
@@ -147,7 +148,7 @@ namespace Wpf.Appl.Gui
             float ratingFrom;
             float ratingTo;
             IList<Book> temp;
-            IList<BookDto> result = new List<BookDto>();
+            ISet<BookDto> result = new HashSet<BookDto>();
             BookDtoConverter converter = new BookDtoConverter
             {
                 BookCounter = BookCounter
@@ -179,7 +180,7 @@ namespace Wpf.Appl.Gui
                 result.Add(converter.ConvertBook(book));
 
 
-            if (section.Length != 0)
+            if (section.Length != 0 && !section.Equals("None"))
             {
                 temp = BookService.FindBySection(BookUtils.ParseSection(section));
                 foreach (var book in temp)
@@ -188,6 +189,7 @@ namespace Wpf.Appl.Gui
 
             searchResultGrid.ItemsSource = result;
             searchResultGrid.Items.Refresh();
+            searchByAuthor.SelectedItem = null;
         }
 
         private void Search_Button_Click(object sender, RoutedEventArgs args)
