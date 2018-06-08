@@ -337,6 +337,9 @@ namespace BookLibrary.Xml.Impl.Dao
 
             var book = FindById(id);
 
+            if (book is null)
+                return;
+
             foreach (var author in book.Authors)
             {
                 NodeHandler.RemoveBookFromAuthor(book.Id, author.Id);

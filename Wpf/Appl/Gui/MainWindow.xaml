@@ -200,6 +200,7 @@
                                     <ComboBoxItem>Documentary</ComboBoxItem>
                                     <ComboBoxItem>History</ComboBoxItem>
                                     <ComboBoxItem>Other</ComboBoxItem>
+                                    <ComboBoxItem>None</ComboBoxItem>
                                 </ComboBox>
                             </Grid>
 

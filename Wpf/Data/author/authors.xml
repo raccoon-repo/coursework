@@ -37,7 +37,39 @@
     <lastName>Park</lastName>
     <books>
       <id>7</id>
-      <id>8</id>
+    </books>
+  </author>
+  <author id="6">
+    <firstName>Павел</firstName>
+    <lastName>Буданцев</lastName>
+    <books>
+    </books>
+  </author>
+  <author id="7">
+    <firstName>William</firstName>
+    <lastName>Shakespear</lastName>
+    <books>
+    </books>
+  </author>
+  <author id="8">
+    <firstName>Nic</firstName>
+    <lastName>Pizzolatto</lastName>
+    <books>
+      <id>11</id>
+    </books>
+  </author>
+  <author id="9">
+    <firstName>Joanne</firstName>
+    <lastName>Rowling</lastName>
+    <books>
+      <id>12</id>
+    </books>
+  </author>
+  <author id="10">
+    <firstName>Новый</firstName>
+    <lastName>Автор</lastName>
+    <books>
+      <id>13</id>
     </books>
   </author>
 </authors>

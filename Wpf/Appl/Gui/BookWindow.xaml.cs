@@ -101,7 +101,10 @@ namespace Wpf.Appl.Gui
                 BookArranger.Set(Book.Id, shelf);
             }
 
+            // if book is saved
+            // it will be displayed onto main datagrid
             BookIsSaved = true;
+            MessageBox.Show("Done");
         }
 
         private void Add_Author_Button_Click(object sender, RoutedEventArgs e)

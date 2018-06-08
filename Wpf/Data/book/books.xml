@@ -59,7 +59,7 @@
   </book>
   <book id="7">
     <section>FICTION</section>
-    <title>No More Sorow</title>
+    <title>No More Sorrow</title>
     <description>
     </description>
     <rating>10</rating>
@@ -67,14 +67,31 @@
       <id>5</id>
     </authors>
   </book>
-  <book id="8">
+  <book id="11">
     <section>FICTION</section>
-    <title>Breaking The Habit</title>
-    <description>
-    </description>
+    <title>True Detective</title>
+    <description>True Detective is an American anthology crime drama television series created and written by Nic Pizzolatto. The series, broadcast by the premium cable network HBO in the United States, premiered on January 12, 2014. Each season of the series is structured as a disparate, self-contained narrative, employing new cast ensembles and following various sets of characters and settings.</description>
     <rating>10</rating>
     <authors>
-      <id>5</id>
+      <id>8</id>
+    </authors>
+  </book>
+  <book id="12">
+    <section>FICTION</section>
+    <title>Harry Potter: The Philosopher's Stone</title>
+    <description>Harry Potter is a series of fantasy novels written by British author J. K. Rowling. The novels chronicle the life of a young wizard, Harry Potter, and his friends Hermione Granger and Ron Weasley, all of whom are students at Hogwarts School of Witchcraft and Wizardry. The main story arc concerns Harry's struggle against Lord Voldemort, a dark wizard who intends to become immortal, overthrow the wizard governing body known as the Ministry of Magic, and subjugate all wizards and muggles, a reference term that means non-magical people.</description>
+    <rating>8.3</rating>
+    <authors>
+      <id>9</id>
+    </authors>
+  </book>
+  <book id="13">
+    <section>FICTION</section>
+    <title>Матрица</title>
+    <description>Mатриц</description>
+    <rating>8.7</rating>
+    <authors>
+      <id>10</id>
     </authors>
   </book>
 </books>
