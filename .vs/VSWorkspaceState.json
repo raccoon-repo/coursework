@@ -3,8 +3,10 @@
     "",
     "\\BookLibrary",
     "\\BookLibrary\\BookLibrary",
-    "\\DatabaseImpl"
+    "\\DatabaseImpl",
+    "\\Wpf",
+    "\\Wpf\\Out"
   ],
-  "SelectedNode": "\\BookLibrary\\BookLibrary",
+  "SelectedNode": "\\Wpf\\Wpf.csproj",
   "PreviewInSolutionExplorer": false
 }

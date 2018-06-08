@@ -1,13 +1,14 @@
 ﻿using BookLibrary.Entities;
 using BookLibrary.Xml.Utils;
 using System.Collections.Generic;
-
+using XmlImpl.Xml.Utils;
 
 namespace Wpf.Appl.DTO
 {
     public class BookDtoConverter
     {
         public IBookCounter BookCounter { get; set; }
+        public IBookArranger BookArranger { get; set; }
 
         public BookDto ConvertBook(Book book)
         {
@@ -16,7 +17,8 @@ namespace Wpf.Appl.DTO
                 Title = book.Title,
                 Rating = book.Rating,
                 Quantity = BookCounter.Count(book.Id),
-                Section = book.Section.ToString().ToLower().Replace("_", " ")
+                Section = book.Section.ToString().ToLower().Replace("_", " "),
+                Shelf = BookArranger.GetShelf(book.Id)
             };
         }
 

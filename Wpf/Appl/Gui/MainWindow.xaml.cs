@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using BookLibrary;
@@ -6,6 +8,7 @@ using BookLibrary.Core.Service;
 using BookLibrary.Entities;
 using BookLibrary.Xml.Utils;
 using Wpf.Appl.DTO;
+using XmlImpl.Xml.Utils;
 
 namespace Wpf.Appl.Gui
 {
@@ -14,6 +17,7 @@ namespace Wpf.Appl.Gui
         private readonly IBookService BookService;
         private readonly IAuthorService AuthorService;
         private readonly IBookCounter BookCounter;
+        private readonly IBookArranger BookArranger;
 
         public MainWindow()
         {
@@ -22,13 +26,15 @@ namespace Wpf.Appl.Gui
             BookService = ApplicationContext.BookService;
             AuthorService = ApplicationContext.AuthorService;
             BookCounter = ApplicationContext.BookCounter;
+            BookArranger = ApplicationContext.BookArranger;
         }
 
         private void Data_Grid_Loaded(object sender, RoutedEventArgs args)
         {
             BookDtoConverter converter = new BookDtoConverter()
             {
-                BookCounter = ApplicationContext.BookCounter
+                BookCounter = ApplicationContext.BookCounter,
+                BookArranger = BookArranger
             };
 
             IList<BookDto> data = converter.ConvertBooks(BookService.FindAll());
@@ -56,7 +62,8 @@ namespace Wpf.Appl.Gui
                 Book = BookService.FindById(bookDto.Id),
                 BookService = BookService,
                 AuthorService = AuthorService,
-                BookCounter = BookCounter
+                BookCounter = BookCounter,
+                BookArranger = BookArranger
             };
 
 
@@ -71,11 +78,13 @@ namespace Wpf.Appl.Gui
                 Book = new Book(),
                 BookService = BookService,
                 AuthorService = AuthorService,
-                BookCounter = BookCounter
+                BookCounter = BookCounter,
+                BookArranger = BookArranger
             };
 
             BookDtoConverter dtoConverter = new BookDtoConverter {
-                BookCounter = BookCounter
+                BookCounter = BookCounter,
+                BookArranger = BookArranger
             };
 
             bookWindow.ShowDialog();
@@ -111,7 +120,8 @@ namespace Wpf.Appl.Gui
         private void Update(DataGrid dataGrid)
         {
             BookDtoConverter dtoConverter = new BookDtoConverter {
-                BookCounter = BookCounter
+                BookCounter = BookCounter,
+                BookArranger = BookArranger
             };
 
             dataGrid.ItemsSource = dtoConverter.ConvertBooks(BookService.FindAll());
@@ -125,7 +135,8 @@ namespace Wpf.Appl.Gui
 
             BookDtoConverter dtoConverter = new BookDtoConverter
             {
-                BookCounter = BookCounter
+                BookCounter = BookCounter,
+                BookArranger = BookArranger
             };
 
             allBooksBySection.ItemsSource = dtoConverter.ConvertBooks(BookService.FindBySection(section));
@@ -150,7 +161,8 @@ namespace Wpf.Appl.Gui
             IList<BookDto> result = new List<BookDto>();
             BookDtoConverter converter = new BookDtoConverter
             {
-                BookCounter = BookCounter
+                BookCounter = BookCounter,
+                BookArranger = BookArranger
             };
 
             if (ratingFromStr.Length != 0 && ratingToStr.Length != 0)
@@ -193,6 +205,35 @@ namespace Wpf.Appl.Gui
         private void Search_Button_Click(object sender, RoutedEventArgs args)
         {
             Search();
+        }
+
+        private void Save_List_To_File(object sender, RoutedEventArgs e)
+        {
+            if (searchResultGrid.Items.Count == 0)
+                return;
+
+            var projDir = ApplicationContext.ProjectDir;
+            var builder = new StringBuilder();
+            var items = searchResultGrid.Items;
+
+            foreach (BookDto book in items)
+            {
+                builder.Append(book.Title)
+                    .Append("\n");
+            }
+
+            var result = builder.ToString();
+
+            var path = projDir + "\\Out\\list.txt";
+
+            using (FileStream fstream = new FileStream(path, FileMode.Create))
+            {
+                byte[] arr = System.Text.Encoding.Default.GetBytes(result);
+                fstream.Write(arr, 0, arr.Length);
+            }
+
+            MessageBox.Show("List has been written into " + path);
+            
         }
     }
 }

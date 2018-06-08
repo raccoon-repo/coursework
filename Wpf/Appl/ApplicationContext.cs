@@ -7,12 +7,16 @@ using System.Text.RegularExpressions;
 using BookLibrary.Xml.Impl.Dao;
 using BookLibrary.Xml.Utils;
 using BookLibrary.Xml.Utils.Impl;
+using XmlImpl.Xml.Utils;
+using XmlImpl.Xml.Utils.Impl;
 
 namespace Wpf.Appl
 {
     public class ApplicationContext
     {
         private static string _projectDir;
+
+        public static readonly string ProjectDir = GetProjectDirectory();
 
         private static IBookService _bookService;
         private static IAuthorService _authorService;
@@ -22,6 +26,10 @@ namespace Wpf.Appl
         private static IBookDao _bookDao;
         private static IAuthorDao _authorDao;
 
+        private static IBookArranger _bookArranger;
+
+
+        public static IBookArranger BookArranger => _bookArranger;
         public static IBookCounter BookCounter => _bookCounter;
         public static IBookService BookService => _bookService;
         public static IAuthorService AuthorService => _authorService;
@@ -53,6 +61,7 @@ namespace Wpf.Appl
             };
 
             _bookCounter = new BookCounter(booksCountPath);
+            _bookArranger = new BookArranger(_projectDir + "\\Data\\book\\shelves.xml");
         }
 
         private static string GetProjectDirectory()

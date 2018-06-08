@@ -9,5 +9,6 @@ namespace Wpf.Appl.DTO
         public float Rating { get; set; }
         public string Section { get; set; }
         public int Quantity { get; set; }
+        public int Shelf { get; set; }
     }
 }

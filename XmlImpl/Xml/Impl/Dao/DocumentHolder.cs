@@ -3,6 +3,12 @@ using System.Xml;
 
 namespace BookLibrary.Xml.Impl.Dao
 {
+
+    /**
+     * Utilitary class, that is responsible for storing xml documents 
+     * with sufficient data about the document,
+     * like path to the document etc.
+     */
     public class DocumentHolder
     {
         private const string ArgExcMessage = 

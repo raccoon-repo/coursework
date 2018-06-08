@@ -33,11 +33,10 @@ namespace BookLibrary.Xml.Impl.Dao
         
         public Book FindById(int id)
         {
-            Book book;
 
-            if (cache.TryGetValue(id, out book))
+            if (cache.TryGetValue(id, out Book book))
                 return book;
-            
+
             var xDoc = DocumentHolder.Document;
             var root = xDoc.DocumentElement;
 

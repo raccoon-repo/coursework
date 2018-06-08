@@ -63,6 +63,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
                             <ColumnDefinition/>
+                            <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
 
                         <Grid Grid.Column="0">
@@ -83,6 +84,15 @@
 
                             <TextBlock Text="Count: " Grid.Column="0" Height="24" />
                             <TextBox x:Name="countTextBox" Height="24" Width="45"  Grid.Column="1"/>
+                        </Grid>
+                        <Grid Grid.Column="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Shelf: " Grid.Column="0" Height="24" />
+                            <TextBox x:Name="shelfTextBox" Height="24" Width="45"  Grid.Column="1"/>
                         </Grid>
                     </Grid>
                 </StackPanel>

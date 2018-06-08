@@ -62,6 +62,14 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
+                                    <DataGridTextColumn Width="60" Header="Shelf" Binding="{Binding Path=Shelf}">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style>
+                                                <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
+                                                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </ScrollViewer>
@@ -113,6 +121,7 @@
                                     <DataGridTextColumn Header="Section" Width="*" Binding="{Binding Path=Section}"/>
                                     <DataGridTextColumn Header="Rating" Width="50" Binding="{Binding Path=Rating}"/>
                                     <DataGridTextColumn Header="Count" Width="50" Binding="{Binding Path=Quantity}"/>
+                                    <DataGridTextColumn Header="Shelf" Width="50" Binding="{Binding Path=Shelf}"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </ScrollViewer>
@@ -222,12 +231,14 @@
                                         <DataGridTextColumn Header="Section" Width="*" Binding="{Binding Path=Section}"/>
                                         <DataGridTextColumn Header="Rating" Width="50" Binding="{Binding Path=Rating}"/>
                                         <DataGridTextColumn Header="Count" Width="50" Binding="{Binding Path=Quantity}"/>
+                                        <DataGridTextColumn Header="Shelf" Width="50" Binding="{Binding Path=Shelf}"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
                             </ScrollViewer>
                             <StackPanel Orientation="Horizontal" Grid.Row="1">
                                 <Button Grid.Row="1" HorizontalAlignment="Left" Width="70" Content="Edit" Click="Edit_Found_Book"/>
                                 <Button Grid.Row="1" HorizontalAlignment="Left" Width="70" Content="Update" Click="Update_Search_Result_Grid"/>
+                                <Button Grid.Row="1" HorizontalAlignment="Left" Width="70" Content="Save" Click="Save_List_To_File"/>
                             </StackPanel>
                         </Grid>
                     </Grid>

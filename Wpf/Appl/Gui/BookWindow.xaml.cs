@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
+using XmlImpl.Xml.Utils;
 
 namespace Wpf.Appl.Gui
 {
@@ -17,6 +18,8 @@ namespace Wpf.Appl.Gui
         public IAuthorService AuthorService { get; set; }
 
         public IBookCounter BookCounter { get; set; }
+
+        public IBookArranger BookArranger { get; set; }
 
         public IList<Author> RemovedAuthor = new List<Author>();
 
@@ -53,21 +56,28 @@ namespace Wpf.Appl.Gui
         }
 
         private void Save_Button_Click(object sender, RoutedEventArgs e)
-        { 
-            if (!float.TryParse(ratingTextBox.Text, out _))
+        {
+
+            if (!float.TryParse(ratingTextBox.Text, out float rating))
             {
                 MessageBox.Show("The value of rating is invalid. Enter it again");
                 return;
             }
 
-            if (!int.TryParse(countTextBox.Text, out _))
+            if (!int.TryParse(countTextBox.Text, out int count))
             {
                 MessageBox.Show("The value of count is invalid. Enter it again");
                 return;
             }
 
+            if (!int.TryParse(shelfTextBox.Text, out int shelf))
+            {
+                MessageBox.Show("The value of shelf is invalid. Enter it again");
+                return;
+            }
+
             Book.Title = titleTextBox.Text;
-            Book.Rating = float.Parse(ratingTextBox.Text);
+            Book.Rating = rating;
             Book.Description = descriptionTextBox.Text;
             Book.Section = BookUtils.ParseSection(sectionComboBox.Text);
             Book.Authors = (bookAuthors.ItemsSource as IList<Author>);
@@ -75,11 +85,20 @@ namespace Wpf.Appl.Gui
             BookService.SaveOrUpdate(Book);
 
             if (!BookCounter.IsPresent(Book.Id)) {
-                BookCounter.AddNew(Book.Id, int.Parse(countTextBox.Text));
+                BookCounter.AddNew(Book.Id, count);
             }
             else
             {
-                BookCounter.SetCount(Book.Id, int.Parse(countTextBox.Text));
+                BookCounter.SetCount(Book.Id, count);
+            }
+
+            if (!BookArranger.IsPresent(Book.Id))
+            {
+                BookArranger.AddEntry(Book.Id, shelf);
+            }
+            else
+            {
+                BookArranger.Set(Book.Id, shelf);
             }
 
             BookIsSaved = true;

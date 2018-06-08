@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<books>
+  <entry>
+    <bookId>1</bookId>
+    <shelf>10</shelf>
+  </entry>
+  <entry>
+    <bookId>2</bookId>
+    <shelf>10</shelf>
+  </entry>
+  <entry>
+    <bookId>3</bookId>
+    <shelf>11</shelf>
+  </entry>
+  <entry>
+    <bookId>4</bookId>
+    <shelf>10</shelf>
+  </entry>
+  <entry>
+    <bookId>5</bookId>
+    <shelf>10</shelf>
+  </entry>
+  <entry>
+    <bookId>6</bookId>
+    <shelf>10</shelf>
+  </entry>
+  <entry>
+    <bookId>7</bookId>
+    <shelf>11</shelf>
+  </entry>
+  <entry>
+    <bookId>8</bookId>
+    <shelf>12</shelf>
+  </entry>
+</books>
